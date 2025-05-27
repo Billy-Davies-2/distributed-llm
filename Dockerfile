@@ -13,8 +13,10 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the binaries with static linking
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+# Generate version file and build the binaries with static linking
+RUN go generate ./cmd/agent && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -X main.Version=$$(cat cmd/agent/version.txt)" -o bin/agent ./cmd/agent && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o bin/tui ./cmd/tui
 
 # Runtime stage - scratch for minimal image
 FROM scratch
