@@ -29,9 +29,12 @@ func TestK8sClientWithConfig(t *testing.T) {
 	pods, err := client.ListPods("default")
 	if err != nil {
 		t.Errorf("Failed to list pods: %v", err)
+		return // Exit early to avoid nil pointer dereference
 	}
 
-	t.Logf("Found %d pods", len(pods.Items))
+	if pods != nil {
+		t.Logf("Found %d pods", len(pods.Items))
+	}
 }
 
 // TestConfigIntegrationWithComponents tests configuration integration across components

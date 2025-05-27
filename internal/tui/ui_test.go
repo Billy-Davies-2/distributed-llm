@@ -293,6 +293,10 @@ func TestRenderMethods(t *testing.T) {
 	}
 	// Test inference tab rendering
 	model.currentTab = TabInference
+
+	// Disable glitch effects for reliable testing
+	model.glitch.SetEnabled(false)
+
 	inferenceView := model.renderInferenceTab()
 	cleanInferenceView := stripANSI(inferenceView)
 

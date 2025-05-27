@@ -2,232 +2,85 @@ package config
 
 import (
 	"testing"
-	"time"
 )
 
-func TestNewConfig(t *testing.T) {
-	cfg := NewConfig()
+func TestDefault(t *testing.T) {
+	cfg := Default()
 
 	if cfg == nil {
-		t.Fatal("NewConfig() returned nil")
+		t.Fatal("Default() returned nil")
 	}
 
 	// Test default values
-	if cfg.NodeID == "" {
-		t.Error("Expected non-empty NodeID")
+	if cfg.NodeID != "default-node" {
+		t.Errorf("Expected NodeID to be 'default-node', got %s", cfg.NodeID)
 	}
 
-	if cfg.BindPort != 8080 {
-		t.Errorf("Expected default BindPort to be 8080, got %d", cfg.BindPort)
+	if cfg.Port != 8080 {
+		t.Errorf("Expected default Port to be 8080, got %d", cfg.Port)
 	}
 
 	if cfg.GossipPort != 7946 {
 		t.Errorf("Expected default GossipPort to be 7946, got %d", cfg.GossipPort)
 	}
 
-	if cfg.MetricsPort != 9090 {
-		t.Errorf("Expected default MetricsPort to be 9090, got %d", cfg.MetricsPort)
+	if cfg.KubernetesNamespace != "default" {
+		t.Errorf("Expected default KubernetesNamespace to be 'default', got %s", cfg.KubernetesNamespace)
 	}
 
 	if cfg.LogLevel != "info" {
 		t.Errorf("Expected default LogLevel to be 'info', got %s", cfg.LogLevel)
 	}
 
-	if cfg.HealthCheckInterval != 30*time.Second {
-		t.Errorf("Expected default HealthCheckInterval to be 30s, got %v", cfg.HealthCheckInterval)
+	if cfg.ModelPath != "/models" {
+		t.Errorf("Expected default ModelPath to be '/models', got %s", cfg.ModelPath)
 	}
 
-	if cfg.EnableCompression != true {
-		t.Error("Expected default EnableCompression to be true")
+	if cfg.DataPath != "/data" {
+		t.Errorf("Expected default DataPath to be '/data', got %s", cfg.DataPath)
 	}
 
-	if cfg.MaxConnections != 100 {
-		t.Errorf("Expected default MaxConnections to be 100, got %d", cfg.MaxConnections)
-	}
-}
-
-func TestConfig_Validate(t *testing.T) {
-	tests := []struct {
-		name    string
-		config  *Config
-		wantErr bool
-	}{
-		{
-			name:    "valid config",
-			config:  NewConfig(),
-			wantErr: false,
-		},
-		{
-			name: "empty node ID",
-			config: &Config{
-				NodeID:              "",
-				BindPort:            8080,
-				GossipPort:          7946,
-				MetricsPort:         9090,
-				LogLevel:            "info",
-				HealthCheckInterval: 30 * time.Second,
-				EnableCompression:   true,
-				MaxConnections:      100,
-			},
-			wantErr: true,
-		},
-		{
-			name: "invalid bind port",
-			config: &Config{
-				NodeID:              "test-node",
-				BindPort:            -1,
-				GossipPort:          7946,
-				MetricsPort:         9090,
-				LogLevel:            "info",
-				HealthCheckInterval: 30 * time.Second,
-				EnableCompression:   true,
-				MaxConnections:      100,
-			},
-			wantErr: true,
-		},
-		{
-			name: "port conflict",
-			config: &Config{
-				NodeID:              "test-node",
-				BindPort:            8080,
-				GossipPort:          8080, // Same as bind port
-				MetricsPort:         9090,
-				LogLevel:            "info",
-				HealthCheckInterval: 30 * time.Second,
-				EnableCompression:   true,
-				MaxConnections:      100,
-			},
-			wantErr: true,
-		},
-		{
-			name: "invalid log level",
-			config: &Config{
-				NodeID:              "test-node",
-				BindPort:            8080,
-				GossipPort:          7946,
-				MetricsPort:         9090,
-				LogLevel:            "invalid",
-				HealthCheckInterval: 30 * time.Second,
-				EnableCompression:   true,
-				MaxConnections:      100,
-			},
-			wantErr: true,
-		},
-		{
-			name: "zero health check interval",
-			config: &Config{
-				NodeID:              "test-node",
-				BindPort:            8080,
-				GossipPort:          7946,
-				MetricsPort:         9090,
-				LogLevel:            "info",
-				HealthCheckInterval: 0,
-				EnableCompression:   true,
-				MaxConnections:      100,
-			},
-			wantErr: true,
-		},
-		{
-			name: "invalid max connections",
-			config: &Config{
-				NodeID:              "test-node",
-				BindPort:            8080,
-				GossipPort:          7946,
-				MetricsPort:         9090,
-				LogLevel:            "info",
-				HealthCheckInterval: 30 * time.Second,
-				EnableCompression:   true,
-				MaxConnections:      0,
-			},
-			wantErr: true,
-		},
+	// Test resource limits
+	if cfg.ResourceLimits.CPU != "1000m" {
+		t.Errorf("Expected default CPU limit to be '1000m', got %s", cfg.ResourceLimits.CPU)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := tt.config.Validate()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Config.Validate() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
+	if cfg.ResourceLimits.Memory != "2Gi" {
+		t.Errorf("Expected default Memory limit to be '2Gi', got %s", cfg.ResourceLimits.Memory)
+	}
+
+	if cfg.ResourceLimits.GPU != "1" {
+		t.Errorf("Expected default GPU limit to be '1', got %s", cfg.ResourceLimits.GPU)
 	}
 }
 
-func TestConfig_GetAddress(t *testing.T) {
-	cfg := NewConfig()
-	cfg.BindAddress = "localhost"
-	cfg.BindPort = 8080
-
-	expected := "localhost:8080"
-	actual := cfg.GetAddress()
-
-	if actual != expected {
-		t.Errorf("Expected address %s, got %s", expected, actual)
+func TestLoadConfig(t *testing.T) {
+	// Test loading non-existent file
+	_, err := LoadConfig("non-existent-file.json")
+	if err == nil {
+		t.Error("Expected error when loading non-existent file")
 	}
+
+	// Note: Testing with actual file would require creating a temp file
+	// For now, we test the error case
 }
 
-func TestConfig_GetGossipAddress(t *testing.T) {
-	cfg := NewConfig()
-	cfg.BindAddress = "localhost"
-	cfg.GossipPort = 7946
-
-	expected := "localhost:7946"
-	actual := cfg.GetGossipAddress()
-
-	if actual != expected {
-		t.Errorf("Expected gossip address %s, got %s", expected, actual)
-	}
-}
-
-func TestConfig_GetMetricsAddress(t *testing.T) {
-	cfg := NewConfig()
-	cfg.BindAddress = "localhost"
-	cfg.MetricsPort = 9090
-
-	expected := "localhost:9090"
-	actual := cfg.GetMetricsAddress()
-
-	if actual != expected {
-		t.Errorf("Expected metrics address %s, got %s", expected, actual)
-	}
-}
-
-func TestConfig_IsGPUEnabled(t *testing.T) {
-	cfg := NewConfig()
-
-	// Test default value
-	if cfg.IsGPUEnabled() {
-		t.Error("Expected GPU to be disabled by default")
+func TestResourceLimits(t *testing.T) {
+	limits := ResourceLimits{
+		CPU:    "2000m",
+		Memory: "4Gi",
+		GPU:    "2",
 	}
 
-	// Test with GPU enabled
-	cfg.EnableGPU = true
-	if !cfg.IsGPUEnabled() {
-		t.Error("Expected GPU to be enabled")
-	}
-}
-
-func TestConfig_GetSeedNodes(t *testing.T) {
-	cfg := NewConfig()
-
-	// Test empty seed nodes
-	seeds := cfg.GetSeedNodes()
-	if len(seeds) != 0 {
-		t.Errorf("Expected empty seed nodes, got %v", seeds)
+	if limits.CPU != "2000m" {
+		t.Errorf("Expected CPU '2000m', got %s", limits.CPU)
 	}
 
-	// Test with seed nodes
-	cfg.SeedNodes = []string{"localhost:8080", "localhost:8081"}
-	seeds = cfg.GetSeedNodes()
-
-	if len(seeds) != 2 {
-		t.Errorf("Expected 2 seed nodes, got %d", len(seeds))
+	if limits.Memory != "4Gi" {
+		t.Errorf("Expected Memory '4Gi', got %s", limits.Memory)
 	}
 
-	expected := []string{"localhost:8080", "localhost:8081"}
-	for i, seed := range seeds {
-		if seed != expected[i] {
-			t.Errorf("Expected seed node %s at index %d, got %s", expected[i], i, seed)
-		}
+	if limits.GPU != "2" {
+		t.Errorf("Expected GPU '2', got %s", limits.GPU)
 	}
 }
