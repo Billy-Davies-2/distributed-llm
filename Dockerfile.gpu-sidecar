@@ -1,0 +1,121 @@
+# NVIDIA GPU Sidecar Container
+# This container provides GPU monitoring and management capabilities
+# to be used alongside the main agent container
+FROM nvidia/cuda:12.3-devel-ubuntu22.04
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    python3 \
+    python3-pip \
+    nvidia-ml-py3 \
+    gpustat \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install nvidia-ml-py for GPU monitoring
+RUN pip3 install nvidia-ml-py3 psutil prometheus-client
+
+# Create monitoring script
+COPY <<EOF /usr/local/bin/gpu-monitor.py
+#!/usr/bin/env python3
+import time
+import json
+import os
+import pynvml
+from prometheus_client import start_http_server, Gauge, Info
+import psutil
+
+# Prometheus metrics
+gpu_memory_total = Gauge('gpu_memory_total_bytes', 'Total GPU memory', ['gpu_id', 'gpu_name'])
+gpu_memory_used = Gauge('gpu_memory_used_bytes', 'Used GPU memory', ['gpu_id', 'gpu_name'])
+gpu_memory_free = Gauge('gpu_memory_free_bytes', 'Free GPU memory', ['gpu_id', 'gpu_name'])
+gpu_utilization = Gauge('gpu_utilization_percent', 'GPU utilization percentage', ['gpu_id', 'gpu_name'])
+gpu_temperature = Gauge('gpu_temperature_celsius', 'GPU temperature', ['gpu_id', 'gpu_name'])
+gpu_power_draw = Gauge('gpu_power_draw_watts', 'GPU power draw', ['gpu_id', 'gpu_name'])
+gpu_info = Info('gpu_info', 'GPU information', ['gpu_id'])
+
+def collect_gpu_metrics():
+    try:
+        pynvml.nvmlInit()
+        device_count = pynvml.nvmlDeviceGetCount()
+        
+        for i in range(device_count):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+            
+            # Get device name
+            name = pynvml.nvmlDeviceGetName(handle).decode('utf-8')
+            
+            # Memory info
+            memory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+            gpu_memory_total.labels(gpu_id=str(i), gpu_name=name).set(memory_info.total)
+            gpu_memory_used.labels(gpu_id=str(i), gpu_name=name).set(memory_info.used)
+            gpu_memory_free.labels(gpu_id=str(i), gpu_name=name).set(memory_info.free)
+            
+            # Utilization
+            utilization = pynvml.nvmlDeviceGetUtilizationRates(handle)
+            gpu_utilization.labels(gpu_id=str(i), gpu_name=name).set(utilization.gpu)
+            
+            # Temperature
+            try:
+                temp = pynvml.nvmlDeviceGetTemperature(handle, pynvml.NVML_TEMPERATURE_GPU)
+                gpu_temperature.labels(gpu_id=str(i), gpu_name=name).set(temp)
+            except:
+                pass
+            
+            # Power draw
+            try:
+                power = pynvml.nvmlDeviceGetPowerUsage(handle) / 1000.0  # Convert to watts
+                gpu_power_draw.labels(gpu_id=str(i), gpu_name=name).set(power)
+            except:
+                pass
+            
+            # Device info
+            uuid = pynvml.nvmlDeviceGetUUID(handle).decode('utf-8')
+            gpu_info.labels(gpu_id=str(i)).info({
+                'name': name,
+                'uuid': uuid,
+                'driver_version': pynvml.nvmlSystemGetDriverVersion().decode('utf-8'),
+                'cuda_version': pynvml.nvmlSystemGetCudaDriverVersion_v2(),
+            })
+            
+    except Exception as e:
+        print(f"Error collecting GPU metrics: {e}")
+
+def main():
+    # Start Prometheus metrics server
+    port = int(os.environ.get('METRICS_PORT', '9091'))
+    start_http_server(port)
+    print(f"GPU metrics server started on port {port}")
+    
+    while True:
+        collect_gpu_metrics()
+        time.sleep(15)  # Collect metrics every 15 seconds
+
+if __name__ == '__main__':
+    main()
+EOF
+
+# Make script executable
+RUN chmod +x /usr/local/bin/gpu-monitor.py
+
+# Create health check script
+COPY <<EOF /usr/local/bin/health-check.sh
+#!/bin/bash
+curl -s http://localhost:9091/metrics | grep -q "gpu_memory_total" || exit 1
+EOF
+
+RUN chmod +x /usr/local/bin/health-check.sh
+
+# Expose metrics port
+EXPOSE 9091
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /usr/local/bin/health-check.sh
+
+# Set environment variables for NVIDIA
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,monitoring
+
+# Default command
+CMD ["/usr/local/bin/gpu-monitor.py"]

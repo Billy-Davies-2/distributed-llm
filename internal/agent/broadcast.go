@@ -7,12 +7,21 @@ import (
 	"time"
 )
 
+// MetricsCollector interface for dependency injection
+type MetricsCollector interface {
+	UpdateNodeResources(resources models.ResourceInfo)
+	UpdateNodeStatus(status models.NodeStatus)
+	UpdateNetworkConnections(count int)
+	RecordNetworkMessage(direction, messageType string)
+}
+
 // Broadcaster handles resource broadcasting and node management
 type Broadcaster struct {
-	mu        sync.RWMutex
-	resources models.ResourceInfo
-	nodes     []models.Node
-	listeners []chan models.ResourceInfo
+	mu               sync.RWMutex
+	resources        models.ResourceInfo
+	nodes            []models.Node
+	listeners        []chan models.ResourceInfo
+	metricsCollector MetricsCollector
 }
 
 // NewBroadcaster creates a new broadcaster instance
@@ -22,6 +31,13 @@ func NewBroadcaster() *Broadcaster {
 		nodes:     []models.Node{},
 		listeners: []chan models.ResourceInfo{},
 	}
+}
+
+// SetMetricsCollector sets the metrics collector for the broadcaster
+func (b *Broadcaster) SetMetricsCollector(collector MetricsCollector) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.metricsCollector = collector
 }
 
 // Start begins the broadcasting service
@@ -50,7 +66,13 @@ func (b *Broadcaster) UpdateResources(resources models.ResourceInfo) {
 	listeners := make([]chan models.ResourceInfo, len(b.listeners))
 	copy(listeners, b.listeners)
 	resourcesCopy := b.resources
+	collector := b.metricsCollector
 	b.mu.Unlock()
+
+	// Update metrics if collector is available
+	if collector != nil {
+		collector.UpdateNodeResources(resources)
+	}
 
 	// Send updates without holding the lock
 	for _, listener := range listeners {
@@ -79,8 +101,16 @@ func (b *Broadcaster) Subscribe(ch chan models.ResourceInfo) {
 // AddNode adds a node to the cluster
 func (b *Broadcaster) AddNode(node models.Node) {
 	b.mu.Lock()
-	defer b.mu.Unlock()
 	b.nodes = append(b.nodes, node)
+	nodeCount := len(b.nodes)
+	collector := b.metricsCollector
+	b.mu.Unlock()
+
+	// Update metrics if collector is available
+	if collector != nil {
+		collector.UpdateNetworkConnections(nodeCount)
+		collector.RecordNetworkMessage("incoming", "node_added")
+	}
 }
 
 // GetNodes returns all known nodes
@@ -97,7 +127,13 @@ func (b *Broadcaster) broadcast() {
 	listeners := make([]chan models.ResourceInfo, len(b.listeners))
 	copy(listeners, b.listeners)
 	resourcesCopy := b.resources
+	collector := b.metricsCollector
 	b.mu.RUnlock()
+
+	// Record broadcast metric
+	if collector != nil {
+		collector.RecordNetworkMessage("outgoing", "resource_broadcast")
+	}
 
 	// Send updates without holding the lock
 	for _, listener := range listeners {

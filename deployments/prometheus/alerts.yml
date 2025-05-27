@@ -1,0 +1,168 @@
+groups:
+  - name: distributed-llm-alerts
+    rules:
+    # Node Health Alerts
+    - alert: NodeDown
+      expr: up{job="distributed-llm-agent"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        component: node
+      annotations:
+        summary: "Distributed LLM node is down"
+        description: "Node {{ $labels.instance }} has been down for more than 1 minute."
+
+    - alert: NodeHighCPUUsage
+      expr: node_cpu_usage_percent > 90
+      for: 5m
+      labels:
+        severity: warning
+        component: node
+      annotations:
+        summary: "High CPU usage on node"
+        description: "Node {{ $labels.node_id }} has CPU usage above 90% for more than 5 minutes."
+
+    - alert: NodeHighMemoryUsage
+      expr: node_memory_usage_percent > 85
+      for: 5m
+      labels:
+        severity: warning
+        component: node
+      annotations:
+        summary: "High memory usage on node"
+        description: "Node {{ $labels.node_id }} has memory usage above 85% for more than 5 minutes."
+
+    - alert: NodeHighGPUMemoryUsage
+      expr: node_gpu_memory_usage_percent > 90
+      for: 3m
+      labels:
+        severity: warning
+        component: gpu
+      annotations:
+        summary: "High GPU memory usage on node"
+        description: "Node {{ $labels.node_id }} has GPU memory usage above 90% for more than 3 minutes."
+
+    # Network Alerts
+    - alert: HighNetworkLatency
+      expr: histogram_quantile(0.95, rate(network_latency_duration_seconds_bucket[5m])) > 1.0
+      for: 2m
+      labels:
+        severity: warning
+        component: network
+      annotations:
+        summary: "High network latency detected"
+        description: "95th percentile network latency is {{ $value }}s for operation {{ $labels.operation }}."
+
+    - alert: NetworkPartition
+      expr: network_connections < 1
+      for: 1m
+      labels:
+        severity: critical
+        component: network
+      annotations:
+        summary: "Network partition detected"
+        description: "Node {{ $labels.node_id }} has no network connections."
+
+    - alert: HighNetworkErrors
+      expr: rate(network_messages_total{direction="error"}[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+        component: network
+      annotations:
+        summary: "High network error rate"
+        description: "Network error rate is {{ $value }} errors/sec on node {{ $labels.node_id }}."
+
+    # Inference Performance Alerts
+    - alert: HighInferenceLatency
+      expr: histogram_quantile(0.95, rate(inference_request_duration_seconds_bucket[5m])) > 30.0
+      for: 2m
+      labels:
+        severity: warning
+        component: inference
+      annotations:
+        summary: "High inference latency"
+        description: "95th percentile inference latency is {{ $value }}s for model {{ $labels.model_id }}."
+
+    - alert: InferenceErrorRate
+      expr: rate(inference_requests_total{status="error"}[5m]) / rate(inference_requests_total[5m]) > 0.05
+      for: 2m
+      labels:
+        severity: warning
+        component: inference
+      annotations:
+        summary: "High inference error rate"
+        description: "Inference error rate is {{ $value | humanizePercentage }} for model {{ $labels.model_id }}."
+
+    - alert: NoInferenceRequests
+      expr: rate(inference_requests_total[10m]) == 0
+      for: 5m
+      labels:
+        severity: info
+        component: inference
+      annotations:
+        summary: "No inference requests"
+        description: "No inference requests received on node {{ $labels.node_id }} for 5 minutes."
+
+    # Resource Utilization Alerts
+    - alert: LowAvailableResources
+      expr: node_available_resources_layers < 2
+      for: 2m
+      labels:
+        severity: warning
+        component: resources
+      annotations:
+        summary: "Low available resources"
+        description: "Node {{ $labels.node_id }} has only {{ $value }} available layers."
+
+    - alert: ResourceExhaustion
+      expr: node_available_resources_layers == 0
+      for: 1m
+      labels:
+        severity: critical
+        component: resources
+      annotations:
+        summary: "Resource exhaustion"
+        description: "Node {{ $labels.node_id }} has no available resources."
+
+    # System Health Alerts
+    - alert: HighErrorRate
+      expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+        component: system
+      annotations:
+        summary: "High error rate"
+        description: "HTTP error rate is {{ $value | humanizePercentage }} on {{ $labels.instance }}."
+
+    - alert: SlowStartup
+      expr: node_startup_duration_seconds > 60
+      for: 0m
+      labels:
+        severity: warning
+        component: system
+      annotations:
+        summary: "Slow node startup"
+        description: "Node {{ $labels.node_id }} took {{ $value }}s to start up."
+
+    # Capacity Planning Alerts
+    - alert: ClusterLowCapacity
+      expr: sum(node_available_resources_layers) / sum(node_total_resources_layers) < 0.2
+      for: 5m
+      labels:
+        severity: warning
+        component: capacity
+      annotations:
+        summary: "Cluster capacity low"
+        description: "Cluster has less than 20% available capacity."
+
+    - alert: ModelLoadImbalance
+      expr: stddev(sum by (node_id) (rate(inference_requests_total[5m]))) / avg(sum by (node_id) (rate(inference_requests_total[5m]))) > 0.5
+      for: 5m
+      labels:
+        severity: info
+        component: load-balancing
+      annotations:
+        summary: "Model load imbalance detected"
+        description: "Inference load is unevenly distributed across nodes."

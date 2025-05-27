@@ -1,0 +1,55 @@
+# Build stage
+FROM golang:1.24.3-alpine AS builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache git make
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the binaries with static linking
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+
+# Runtime stage with NVIDIA support
+FROM nvidia/cuda:12.3-runtime-ubuntu22.04
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    libnvidia-ml1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -r -s /bin/false -m -d /home/llm llm
+
+# Copy binaries from builder
+COPY --from=builder /app/bin/agent /bin/agent
+COPY --from=builder /app/bin/tui /bin/tui
+
+# Create directories
+RUN mkdir -p /models /config /logs && \
+    chown -R llm:llm /models /config /logs
+
+# Switch to non-root user for most operations
+USER llm
+
+# Expose ports
+EXPOSE 8080 7946 9090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:9090/health || exit 1
+
+# Set environment variables for NVIDIA
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Default command
+ENTRYPOINT ["/bin/agent"]

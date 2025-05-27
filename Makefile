@@ -221,3 +221,56 @@ k3d-stop:
 k3d-clean:
 	@echo "Deleting k3d cluster..."
 	k3d cluster delete $(APP_NAME)
+
+## metrics: Start local Prometheus server for development
+metrics:
+	@echo "Starting Prometheus server..."
+	@mkdir -p tmp/prometheus
+	@docker run -d --name prometheus-dev \
+		-p 9091:9090 \
+		-v $(PWD)/deployments/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+		-v $(PWD)/tmp/prometheus:/prometheus \
+		prom/prometheus:v2.45.0 \
+		--config.file=/etc/prometheus/prometheus.yml \
+		--storage.tsdb.path=/prometheus \
+		--web.console.libraries=/etc/prometheus/console_libraries \
+		--web.console.templates=/etc/prometheus/consoles \
+		--web.enable-lifecycle || echo "Prometheus already running"
+	@echo "Prometheus available at http://localhost:9091"
+
+## metrics-stop: Stop local Prometheus server
+metrics-stop:
+	@echo "Stopping Prometheus server..."
+	@docker stop prometheus-dev || true
+	@docker rm prometheus-dev || true
+
+## grafana: Start local Grafana server for development
+grafana:
+	@echo "Starting Grafana server..."
+	@docker run -d --name grafana-dev \
+		-p 3000:3000 \
+		-e "GF_SECURITY_ADMIN_PASSWORD=admin" \
+		-v grafana-storage:/var/lib/grafana \
+		grafana/grafana:10.0.0 || echo "Grafana already running"
+	@echo "Grafana available at http://localhost:3000 (admin/admin)"
+
+## grafana-stop: Stop local Grafana server
+grafana-stop:
+	@echo "Stopping Grafana server..."
+	@docker stop grafana-dev || true
+	@docker rm grafana-dev || true
+
+## monitoring: Start full monitoring stack (Prometheus + Grafana)
+monitoring: metrics grafana
+	@echo "Monitoring stack started"
+	@echo "Prometheus: http://localhost:9091"
+	@echo "Grafana: http://localhost:3000 (admin/admin)"
+
+## monitoring-stop: Stop full monitoring stack
+monitoring-stop: metrics-stop grafana-stop
+	@echo "Monitoring stack stopped"
+
+## metrics-check: Check metrics endpoint
+metrics-check:
+	@echo "Checking metrics endpoint..."
+	@curl -s http://localhost:9090/metrics | head -20 || echo "Metrics endpoint not available"

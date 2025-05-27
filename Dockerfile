@@ -13,35 +13,21 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the binaries
-RUN make build
+# Build the binaries with static linking
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 
-# Runtime stage
-FROM alpine:3.19
+# Runtime stage - scratch for minimal image
+FROM scratch
 
-# Install runtime dependencies
-RUN apk add --no-cache ca-certificates curl
-
-# Create non-root user
-RUN adduser -D -s /bin/sh llm
+# Copy CA certificates for HTTPS requests
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy binaries from builder
 COPY --from=builder /app/bin/agent /bin/agent
 COPY --from=builder /app/bin/tui /bin/tui
 
-# Create directories
-RUN mkdir -p /models /config /logs && \
-    chown -R llm:llm /models /config /logs
-
-# Switch to non-root user for most operations
-USER llm
-
 # Expose ports
-EXPOSE 8080 7946
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+EXPOSE 8080 7946 9090
 
 # Default command
-CMD ["/bin/agent"]
+ENTRYPOINT ["/bin/agent"]

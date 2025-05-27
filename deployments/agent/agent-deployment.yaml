@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distributed-llm-agent
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm-agent
+    component: agent
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: distributed-llm-agent
+  template:
+    metadata:
+      labels:
+        app: distributed-llm-agent
+        component: agent
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: agent
+        image: distributed-llm/agent:latest
+        ports:
+        - containerPort: 8080
+          name: grpc
+          protocol: TCP
+        - containerPort: 7946
+          name: gossip
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        env:
+        - name: NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: BIND_PORT
+          value: "8080"
+        - name: GOSSIP_PORT
+          value: "7946"
+        - name: METRICS_PORT
+          value: "9090"
+        - name: SEED_NODES
+          value: "distributed-llm-agent-0.distributed-llm-agent:7946,distributed-llm-agent-1.distributed-llm-agent:7946"
+        args:
+        - "--node-id=$(NODE_ID)"
+        - "--bind-port=$(BIND_PORT)"
+        - "--gossip-port=$(GOSSIP_PORT)"
+        - "--metrics-port=$(METRICS_PORT)"
+        - "--seed-nodes=$(SEED_NODES)"
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: distributed-llm-agent
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm-agent
+    component: agent
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: grpc
+  - port: 7946
+    targetPort: 7946
+    protocol: TCP
+    name: gossip
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: metrics
+  selector:
+    app: distributed-llm-agent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: distributed-llm-agent-headless
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm-agent
+    component: agent
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - port: 7946
+    targetPort: 7946
+    protocol: TCP
+    name: gossip
+  selector:
+    app: distributed-llm-agent

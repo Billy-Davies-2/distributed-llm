@@ -1,0 +1,201 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Distributed LLM Cluster",
+    "tags": ["distributed-llm"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Node Status Overview",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "distributed_llm_node_status",
+            "legendFormat": "{{node_id}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {"text": "Offline", "color": "red"},
+                  "1": {"text": "Online", "color": "green"},
+                  "2": {"text": "Busy", "color": "yellow"},
+                  "3": {"text": "Unknown", "color": "gray"}
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Total Network Messages",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(distributed_llm_network_messages_total[5m]))",
+            "legendFormat": "Messages/sec",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Node Resources - CPU Cores",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "distributed_llm_node_resources{resource_type=\"cpu_cores\"}",
+            "legendFormat": "{{node_id}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Node Resources - Memory (MB)",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "distributed_llm_node_resources{resource_type=\"memory_mb\"}",
+            "legendFormat": "{{node_id}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Layers Allocated",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "distributed_llm_layers_allocated",
+            "legendFormat": "{{node_id}} - {{model_id}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Network Latency",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(distributed_llm_network_latency_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile - {{operation}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(distributed_llm_network_latency_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile - {{operation}}",
+            "refId": "B"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Inference Requests Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(distributed_llm_inference_requests_total[5m])",
+            "legendFormat": "{{node_id}} - {{status}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 8,
+        "title": "Inference Latency",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(distributed_llm_inference_latency_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile - {{model_id}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(distributed_llm_inference_latency_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile - {{model_id}}",
+            "refId": "B"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 9,
+        "title": "Tokens Generated Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(distributed_llm_inference_tokens_generated[5m])",
+            "legendFormat": "{{node_id}} - {{model_id}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      },
+      {
+        "id": 10,
+        "title": "System Memory Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "distributed_llm_system_memory_usage_bytes",
+            "legendFormat": "{{node_id}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 32}
+      },
+      {
+        "id": 11,
+        "title": "System CPU Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "distributed_llm_system_cpu_usage_percent",
+            "legendFormat": "{{node_id}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 32}
+      },
+      {
+        "id": 12,
+        "title": "Health Check Status",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(distributed_llm_health_check_total[5m])",
+            "legendFormat": "{{node_id}} - {{status}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 32}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "refresh": "10s"
+  }
+}

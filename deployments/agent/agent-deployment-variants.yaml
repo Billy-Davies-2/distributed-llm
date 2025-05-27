@@ -1,0 +1,238 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: distributed-llm-agent-cpu
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm
+    component: agent
+    variant: cpu
+spec:
+  selector:
+    matchLabels:
+      app: distributed-llm-agent
+      variant: cpu
+  template:
+    metadata:
+      labels:
+        app: distributed-llm-agent
+        component: agent
+        variant: cpu
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: distributed-llm-agent
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        # Deploy only on nodes without GPU
+        nvidia.com/gpu: "false"
+      containers:
+      - name: agent
+        image: distributed-llm:latest
+        imagePullPolicy: Never  # Use local image for development
+        command:
+        - /bin/agent
+        args:
+        - --node-id=$(NODE_NAME)
+        - --bind-port=8080
+        - --gossip-port=7946
+        - --metrics-port=9090
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: NODE_TYPE
+          value: "cpu"
+        ports:
+        - containerPort: 8080
+          name: grpc
+          protocol: TCP
+        - containerPort: 7946
+          name: gossip
+          protocol: TCP
+        - containerPort: 7946
+          name: gossip-udp
+          protocol: UDP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+        volumeMounts:
+        - name: shared-models
+          mountPath: /models
+        - name: host-sys
+          mountPath: /host/sys
+          readOnly: true
+        - name: host-proc
+          mountPath: /host/proc
+          readOnly: true
+        securityContext:
+          privileged: true
+          runAsUser: 0
+      volumes:
+      - name: shared-models
+        persistentVolumeClaim:
+          claimName: distributed-llm-models
+      - name: host-sys
+        hostPath:
+          path: /sys
+      - name: host-proc
+        hostPath:
+          path: /proc
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: distributed-llm-agent-gpu
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm
+    component: agent
+    variant: gpu
+spec:
+  selector:
+    matchLabels:
+      app: distributed-llm-agent
+      variant: gpu
+  template:
+    metadata:
+      labels:
+        app: distributed-llm-agent
+        component: agent
+        variant: gpu
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        prometheus.io/scrape-gpu: "true"
+        prometheus.io/port-gpu: "9091"
+        prometheus.io/path-gpu: "/metrics"
+    spec:
+      serviceAccountName: distributed-llm-agent
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        # Deploy only on nodes with GPU
+        nvidia.com/gpu: "true"
+      containers:
+      - name: agent
+        image: distributed-llm:gpu
+        imagePullPolicy: Never  # Use local image for development
+        command:
+        - /bin/agent
+        args:
+        - --node-id=$(NODE_NAME)
+        - --bind-port=8080
+        - --gossip-port=7946
+        - --metrics-port=9090
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: NODE_TYPE
+          value: "gpu"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: "compute,utility"
+        ports:
+        - containerPort: 8080
+          name: grpc
+          protocol: TCP
+        - containerPort: 7946
+          name: gossip
+          protocol: TCP
+        - containerPort: 7946
+          name: gossip-udp
+          protocol: UDP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+            nvidia.com/gpu: 1
+          limits:
+            cpu: "4"
+            memory: "8Gi"
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: shared-models
+          mountPath: /models
+        - name: host-sys
+          mountPath: /host/sys
+          readOnly: true
+        - name: host-proc
+          mountPath: /host/proc
+          readOnly: true
+        securityContext:
+          privileged: true
+          runAsUser: 0
+      
+      # GPU monitoring sidecar
+      - name: gpu-monitor
+        image: distributed-llm:gpu-sidecar
+        imagePullPolicy: Never
+        env:
+        - name: METRICS_PORT
+          value: "9091"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: "compute,utility,monitoring"
+        ports:
+        - containerPort: 9091
+          name: gpu-metrics
+          protocol: TCP
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+            nvidia.com/gpu: 1
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+            nvidia.com/gpu: 1
+        securityContext:
+          privileged: true
+          runAsUser: 0
+          
+      volumes:
+      - name: shared-models
+        persistentVolumeClaim:
+          claimName: distributed-llm-models
+      - name: host-sys
+        hostPath:
+          path: /sys
+      - name: host-proc
+        hostPath:
+          path: /proc

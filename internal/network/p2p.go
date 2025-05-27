@@ -13,13 +13,23 @@ import (
 	pb "distributed-llm/proto"
 )
 
+// MetricsCollector interface for dependency injection
+type MetricsCollector interface {
+	RecordNetworkMessage(direction, messageType string)
+	RecordNetworkLatency(targetNode, operation string, duration time.Duration)
+	UpdateNodeStatus(status models.NodeStatus)
+	UpdateNetworkConnections(count int)
+	RecordInferenceRequest(modelID, status string, duration time.Duration, tokensGenerated int)
+}
+
 type P2PNetwork struct {
-	memberlist    *memberlist.Memberlist
-	nodeID        string
-	bindPort      int
-	gossipPort    int
-	logger        *slog.Logger
-	eventDelegate *EventDelegate
+	memberlist       *memberlist.Memberlist
+	nodeID           string
+	bindPort         int
+	gossipPort       int
+	logger           *slog.Logger
+	eventDelegate    *EventDelegate
+	metricsCollector MetricsCollector
 }
 
 type EventDelegate struct {
@@ -29,14 +39,31 @@ type EventDelegate struct {
 
 func (e *EventDelegate) NotifyJoin(node *memberlist.Node) {
 	e.logger.Info("Node joined", "name", node.Name, "addr", node.Addr)
+
+	// Record metrics if collector is available
+	if e.network.metricsCollector != nil {
+		e.network.metricsCollector.RecordNetworkMessage("incoming", "join")
+		e.network.metricsCollector.UpdateNetworkConnections(len(e.network.GetMembers()))
+	}
 }
 
 func (e *EventDelegate) NotifyLeave(node *memberlist.Node) {
 	e.logger.Info("Node left", "name", node.Name, "addr", node.Addr)
+
+	// Record metrics if collector is available
+	if e.network.metricsCollector != nil {
+		e.network.metricsCollector.RecordNetworkMessage("incoming", "leave")
+		e.network.metricsCollector.UpdateNetworkConnections(len(e.network.GetMembers()))
+	}
 }
 
 func (e *EventDelegate) NotifyUpdate(node *memberlist.Node) {
 	e.logger.Info("Node updated", "name", node.Name, "addr", node.Addr)
+
+	// Record metrics if collector is available
+	if e.network.metricsCollector != nil {
+		e.network.metricsCollector.RecordNetworkMessage("incoming", "update")
+	}
 }
 
 func NewP2PNetwork(nodeID string, bindPort, gossipPort int) (*P2PNetwork, error) {
@@ -76,7 +103,14 @@ func NewP2PNetwork(nodeID string, bindPort, gossipPort int) (*P2PNetwork, error)
 	return network, nil
 }
 
+// SetMetricsCollector sets the metrics collector for the network
+func (n *P2PNetwork) SetMetricsCollector(collector MetricsCollector) {
+	n.metricsCollector = collector
+}
+
 func (n *P2PNetwork) Start(seedNodes []string) error {
+	startTime := time.Now()
+
 	// Configure memberlist
 	config := memberlist.DefaultLocalConfig()
 	config.Name = n.nodeID
@@ -87,6 +121,10 @@ func (n *P2PNetwork) Start(seedNodes []string) error {
 	// Create memberlist
 	list, err := memberlist.Create(config)
 	if err != nil {
+		// Record failed start metric
+		if n.metricsCollector != nil {
+			n.metricsCollector.RecordNetworkMessage("outgoing", "start_failed")
+		}
 		return fmt.Errorf("failed to create memberlist: %w", err)
 	}
 	n.memberlist = list
@@ -96,9 +134,24 @@ func (n *P2PNetwork) Start(seedNodes []string) error {
 		_, err := list.Join(seedNodes)
 		if err != nil {
 			n.logger.Warn("Failed to join cluster", "error", err)
+			// Record failed join metric
+			if n.metricsCollector != nil {
+				n.metricsCollector.RecordNetworkMessage("outgoing", "join_cluster_failed")
+			}
 		} else {
 			n.logger.Info("Joined cluster with seeds", "seeds", seedNodes)
+			// Record successful join metric
+			if n.metricsCollector != nil {
+				n.metricsCollector.RecordNetworkMessage("outgoing", "join_cluster_success")
+			}
 		}
+	}
+
+	// Record successful start and startup latency
+	if n.metricsCollector != nil {
+		n.metricsCollector.RecordNetworkMessage("outgoing", "start_success")
+		n.metricsCollector.RecordNetworkLatency("local", "network_start", time.Since(startTime))
+		n.metricsCollector.UpdateNetworkConnections(len(n.GetMembers()))
 	}
 
 	n.logger.Info("P2P network started", "port", n.gossipPort)
@@ -173,10 +226,27 @@ func (s *NodeServer) GetResources(ctx context.Context, req *pb.GetResourcesReque
 }
 
 func (s *NodeServer) ProcessInference(ctx context.Context, req *pb.InferenceRequest) (*pb.InferenceResponse, error) {
-	return &pb.InferenceResponse{
+	startTime := time.Now()
+
+	// Record inference metrics
+	if s.network.metricsCollector != nil {
+		defer func() {
+			s.network.metricsCollector.RecordNetworkLatency("local", "inference_request", time.Since(startTime))
+		}()
+	}
+
+	// Simple mock response - in real implementation this would process the inference
+	response := &pb.InferenceResponse{
 		Success:       true,
 		GeneratedText: "Hello from node " + s.network.nodeID,
-	}, nil
+	}
+
+	// Record successful inference
+	if s.network.metricsCollector != nil {
+		s.network.metricsCollector.RecordInferenceRequest("default_model", "success", time.Since(startTime), 10)
+	}
+
+	return response, nil
 }
 
 func (s *NodeServer) HealthCheck(ctx context.Context, req *pb.HealthCheckRequest) (*pb.HealthCheckResponse, error) {

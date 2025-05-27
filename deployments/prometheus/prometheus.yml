@@ -1,0 +1,54 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Distributed LLM agent metrics
+  - job_name: 'distributed-llm-agents'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+    scrape_interval: 5s
+    scrape_timeout: 5s
+
+  # Kubernetes service discovery for agents
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      # Only scrape pods with the annotation prometheus.io/scrape=true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      # Use the port annotation or default to 9090
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: (.+)
+        replacement: ${1}:9090
+      # Use the path annotation or default to /metrics
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      # Set job name from pod labels
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        target_label: job
+        replacement: ${1}
+      # Set instance name from pod name
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: instance
+        replacement: ${1}
+      # Set node_id from pod label
+      - source_labels: [__meta_kubernetes_pod_label_node_id]
+        target_label: node_id
+        replacement: ${1}
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9091']
