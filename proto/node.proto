@@ -10,6 +10,25 @@ service NodeService {
   rpc GetResources(GetResourcesRequest) returns (GetResourcesResponse);
   rpc ProcessInference(InferenceRequest) returns (InferenceResponse);
   rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GetPeers(GetPeersRequest) returns (GetPeersResponse);
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse);
+  rpc StreamMetrics(StreamMetricsRequest) returns (stream MetricsUpdate);
+}
+
+// Discovery service for cluster management
+service DiscoveryService {
+  rpc DiscoverNodes(DiscoveryRequest) returns (DiscoveryResponse);
+  rpc RegisterWithCluster(ClusterJoinRequest) returns (ClusterJoinResponse);
+  rpc LeaveCluster(ClusterLeaveRequest) returns (ClusterLeaveResponse);
+  rpc GetClusterInfo(ClusterInfoRequest) returns (ClusterInfoResponse);
+}
+
+// TUI service for management interface
+service TUIService {
+  rpc GetNodeList(NodeListRequest) returns (NodeListResponse);
+  rpc GetModelList(ModelListRequest) returns (ModelListResponse);
+  rpc StreamUpdates(UpdateStreamRequest) returns (stream ClusterUpdate);
+  rpc ExecuteCommand(CommandRequest) returns (CommandResponse);
 }
 
 // Messages for node registration
@@ -75,4 +94,212 @@ message HealthCheckResponse {
   bool healthy = 1;
   string status = 2;
   int64 uptime_seconds = 3;
+}
+
+// Peer discovery messages
+message GetPeersRequest {
+  string node_id = 1;
+}
+
+message GetPeersResponse {
+  repeated NodeInfo peers = 1;
+}
+
+message NodeInfo {
+  string node_id = 1;
+  string address = 2;
+  int32 port = 3;
+  ResourceInfo resources = 4;
+  string status = 5;
+  int64 last_seen = 6;
+}
+
+// Discovery service messages
+message DiscoveryRequest {
+  string requester_id = 1;
+  repeated string known_nodes = 2;
+}
+
+message DiscoveryResponse {
+  repeated NodeInfo discovered_nodes = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message ClusterJoinRequest {
+  string node_id = 1;
+  string address = 2;
+  int32 port = 3;
+  ResourceInfo resources = 4;
+  repeated string seed_nodes = 5;
+}
+
+message ClusterJoinResponse {
+  bool success = 1;
+  string message = 2;
+  repeated NodeInfo existing_nodes = 3;
+  string cluster_id = 4;
+}
+
+message ClusterLeaveRequest {
+  string node_id = 1;
+  string reason = 2;
+}
+
+message ClusterLeaveResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ClusterInfoRequest {
+  string requester_id = 1;
+}
+
+message ClusterInfoResponse {
+  string cluster_id = 1;
+  repeated NodeInfo nodes = 2;
+  repeated ModelInfo models = 3;
+  ClusterMetrics metrics = 4;
+}
+
+// Model information
+message ModelInfo {
+  string id = 1;
+  string name = 2;
+  string version = 3;
+  int32 layer_count = 4;
+  string file_path = 5;
+  int64 size_bytes = 6;
+  repeated string node_assignments = 7;
+}
+
+// Metrics messages
+message GetMetricsRequest {
+  string node_id = 1;
+  repeated string metric_types = 2;
+}
+
+message GetMetricsResponse {
+  NodeMetrics metrics = 1;
+  int64 timestamp = 2;
+}
+
+message StreamMetricsRequest {
+  string node_id = 1;
+  int32 interval_seconds = 2;
+  repeated string metric_types = 3;
+}
+
+message MetricsUpdate {
+  string node_id = 1;
+  NodeMetrics metrics = 2;
+  int64 timestamp = 3;
+}
+
+message NodeMetrics {
+  ResourceMetrics resource_metrics = 1;
+  NetworkMetrics network_metrics = 2;
+  InferenceMetrics inference_metrics = 3;
+  SystemMetrics system_metrics = 4;
+}
+
+message ResourceMetrics {
+  float cpu_usage_percent = 1;
+  int64 memory_used_mb = 2;
+  int64 memory_total_mb = 3;
+  repeated GPUMetrics gpu_metrics = 4;
+  int32 layers_allocated = 5;
+  int32 layers_total = 6;
+}
+
+message GPUMetrics {
+  string gpu_id = 1;
+  float usage_percent = 2;
+  int64 memory_used_mb = 3;
+  int64 memory_total_mb = 4;
+  float temperature_celsius = 5;
+}
+
+message NetworkMetrics {
+  int64 bytes_sent = 1;
+  int64 bytes_received = 2;
+  int32 active_connections = 3;
+  float latency_ms = 4;
+  int32 messages_sent = 5;
+  int32 messages_received = 6;
+}
+
+message InferenceMetrics {
+  int32 requests_total = 1;
+  int32 requests_active = 2;
+  float avg_latency_ms = 3;
+  int32 tokens_generated = 4;
+  float tokens_per_second = 5;
+  int32 errors_total = 6;
+}
+
+message SystemMetrics {
+  int64 uptime_seconds = 1;
+  int32 goroutines = 2;
+  int64 memory_allocated = 3;
+  int64 gc_cycles = 4;
+  float load_average = 5;
+}
+
+message ClusterMetrics {
+  int32 total_nodes = 1;
+  int32 healthy_nodes = 2;
+  int64 total_memory_mb = 3;
+  int64 available_memory_mb = 4;
+  int32 total_gpus = 5;
+  int32 total_layers = 6;
+  int32 allocated_layers = 7;
+  float cluster_utilization = 8;
+}
+
+// TUI service messages
+message NodeListRequest {
+  string requester_id = 1;
+  bool include_metrics = 2;
+}
+
+message NodeListResponse {
+  repeated NodeInfo nodes = 1;
+  ClusterMetrics cluster_metrics = 2;
+}
+
+message ModelListRequest {
+  string requester_id = 1;
+}
+
+message ModelListResponse {
+  repeated ModelInfo models = 1;
+}
+
+message UpdateStreamRequest {
+  string requester_id = 1;
+  repeated string update_types = 2; // "nodes", "models", "metrics"
+  int32 interval_seconds = 3;
+}
+
+message ClusterUpdate {
+  string update_type = 1;
+  repeated NodeInfo nodes = 2;
+  repeated ModelInfo models = 3;
+  ClusterMetrics metrics = 4;
+  int64 timestamp = 5;
+}
+
+message CommandRequest {
+  string requester_id = 1;
+  string command = 2;
+  repeated string args = 3;
+  map<string, string> options = 4;
+}
+
+message CommandResponse {
+  bool success = 1;
+  string output = 2;
+  string error = 3;
+  int32 exit_code = 4;
 }

@@ -7,13 +7,26 @@ rule_files:
   # - "second_rules.yml"
 
 scrape_configs:
-  # Distributed LLM agent metrics
-  - job_name: 'distributed-llm-agents'
+  # Docker Compose service discovery for local development
+  - job_name: 'distributed-llm-docker'
     static_configs:
-      - targets: ['localhost:9090']
-    metrics_path: /metrics
+      - targets: 
+          - 'agent-1:9090'
+          - 'agent-2:9090'
+          - 'agent-3:9090'
     scrape_interval: 5s
-    scrape_timeout: 5s
+    metrics_path: /metrics
+
+  # Local development with host networking
+  - job_name: 'distributed-llm-local'
+    static_configs:
+      - targets:
+          - 'localhost:9090'
+          - 'localhost:9091'
+          - 'localhost:9092'
+          - 'localhost:9094'
+    scrape_interval: 5s
+    metrics_path: /metrics
 
   # Kubernetes service discovery for agents
   - job_name: 'kubernetes-pods'
@@ -51,4 +64,4 @@ scrape_configs:
   # Prometheus self-monitoring
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9091']
+      - targets: ['localhost:9090']

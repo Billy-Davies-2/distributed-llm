@@ -102,16 +102,21 @@ const (
 )
 
 type Model struct {
-	currentTab   Tab
-	nodes        []models.Node
-	modelList    []models.Model
-	selectedNode int
-	width        int
-	height       int
-	lastUpdate   time.Time
+	currentTab      Tab
+	nodes           []models.Node
+	modelList       []models.Model
+	selectedNode    int
+	width           int
+	height          int
+	lastUpdate      time.Time
+	nodeUpdateChan  chan []models.Node
+	modelUpdateChan chan []models.Model
+	glitch          *GlitchEffect
 }
 
 type TickMsg time.Time
+type NodesUpdateMsg []models.Node
+type ModelsUpdateMsg []models.Model
 
 func tickCmd() tea.Cmd {
 	return tea.Tick(time.Second*2, func(t time.Time) tea.Msg {
@@ -119,8 +124,31 @@ func tickCmd() tea.Cmd {
 	})
 }
 
+func waitForNodesUpdate(nodeUpdateChan chan []models.Node) tea.Cmd {
+	return func() tea.Msg {
+		return NodesUpdateMsg(<-nodeUpdateChan)
+	}
+}
+
+func waitForModelsUpdate(modelUpdateChan chan []models.Model) tea.Cmd {
+	return func() tea.Msg {
+		return ModelsUpdateMsg(<-modelUpdateChan)
+	}
+}
+
 func (m Model) Init() tea.Cmd {
-	return tickCmd()
+	var cmds []tea.Cmd
+	cmds = append(cmds, tickCmd())
+
+	if m.nodeUpdateChan != nil {
+		cmds = append(cmds, waitForNodesUpdate(m.nodeUpdateChan))
+	}
+
+	if m.modelUpdateChan != nil {
+		cmds = append(cmds, waitForModelsUpdate(m.modelUpdateChan))
+	}
+
+	return tea.Batch(cmds...)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -146,11 +174,39 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.selectedNode < len(m.nodes)-1 {
 				m.selectedNode++
 			}
+
+		case "g":
+			// Toggle glitch effects
+			m.glitch.SetEnabled(!m.glitch.IsEnabled())
+
+		case "G":
+			// Trigger manual glitch
+			if m.glitch.IsEnabled() {
+				m.glitch.SetIntensity(1.0)
+			}
+
+		case "1", "2", "3", "4", "5":
+			// Set glitch intensity levels
+			if m.glitch.IsEnabled() {
+				intensity := float64(msg.String()[0]-'0') * 0.2
+				m.glitch.SetIntensity(intensity)
+			}
 		}
 
 	case TickMsg:
 		m.lastUpdate = time.Time(msg)
 		return m, tickCmd()
+
+	case NodesUpdateMsg:
+		m.nodes = []models.Node(msg)
+		if m.selectedNode >= len(m.nodes) {
+			m.selectedNode = 0
+		}
+		return m, waitForNodesUpdate(m.nodeUpdateChan)
+
+	case ModelsUpdateMsg:
+		m.modelList = []models.Model(msg)
+		return m, waitForModelsUpdate(m.modelUpdateChan)
 	}
 
 	return m, nil
@@ -214,7 +270,16 @@ func (m Model) View() string {
 	footerSep := strings.Repeat("─", min(m.width-4, 80))
 	content.WriteString(footerStyle.Render(footerSep))
 	content.WriteString("\n")
+
+	// Main controls
 	content.WriteString(footerStyle.Render("F1=HELP │ TAB=SWITCH │ ↑↓=NAVIGATE │ Q=QUIT"))
+
+	// Glitch controls and status
+	glitchStatus := "OFF"
+	if m.glitch.IsEnabled() {
+		glitchStatus = "ON"
+	}
+	content.WriteString(footerStyle.Render(fmt.Sprintf(" │ G=GLITCH:%s │ 1-5=INTENSITY", glitchStatus)))
 	content.WriteString(footerStyle.Render(fmt.Sprintf(" │ UPTIME: %s", m.lastUpdate.Format("15:04:05"))))
 
 	return content.String()
@@ -412,7 +477,20 @@ func (m Model) renderInferenceTab() string {
 		PaddingLeft(2)
 	content.WriteString(comingSoonStyle.Render(">>> IMPLEMENTATION IN PROGRESS <<<"))
 
-	return content.String()
+	// Apply glitch effects to the final output
+	finalOutput := content.String()
+
+	// Check for screen-wide glitch effects first
+	if hasScreenGlitch, screenGlitch := m.glitch.ApplyScreenGlitch(); hasScreenGlitch {
+		return screenGlitch
+	}
+
+	// Apply text glitches
+	if m.glitch.IsEnabled() {
+		finalOutput = m.glitch.ApplyTextGlitch(finalOutput)
+	}
+
+	return finalOutput
 }
 
 func NewModel() Model {
@@ -422,6 +500,20 @@ func NewModel() Model {
 		modelList:    []models.Model{},
 		selectedNode: 0,
 		lastUpdate:   time.Now(),
+		glitch:       NewGlitchEffect(),
+	}
+}
+
+func NewModelWithChannels(nodeUpdateChan chan []models.Node, modelUpdateChan chan []models.Model) Model {
+	return Model{
+		currentTab:      TabNodes,
+		nodes:           []models.Node{},
+		modelList:       []models.Model{},
+		selectedNode:    0,
+		lastUpdate:      time.Now(),
+		nodeUpdateChan:  nodeUpdateChan,
+		modelUpdateChan: modelUpdateChan,
+		glitch:          NewGlitchEffect(),
 	}
 }
 

@@ -1,0 +1,149 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: distributed-llm-agent-scaledobject
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm-agent
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: distributed-llm-agent-deployment
+  pollingInterval: 15  # seconds
+  cooldownPeriod: 300  # seconds
+  idleReplicaCount: 1
+  minReplicaCount: 1
+  maxReplicaCount: 20
+  fallback:
+    failureThreshold: 3
+    replicas: 2
+  triggers:
+  # Scale based on Prometheus metrics - CPU usage
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: llm_node_cpu_usage_percent
+      threshold: '70'
+      query: avg(llm_node_cpu_usage_percent{job="distributed-llm-agent"})
+  # Scale based on Prometheus metrics - Memory usage
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: llm_node_memory_usage_percent
+      threshold: '80'
+      query: avg((llm_node_memory_used_mb{job="distributed-llm-agent"} / llm_node_memory_total_mb{job="distributed-llm-agent"}) * 100)
+  # Scale based on active inference requests
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: llm_inference_requests_active
+      threshold: '5'
+      query: sum(llm_inference_requests_active{job="distributed-llm-agent"})
+  # Scale based on queue depth
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: llm_inference_queue_depth
+      threshold: '10'
+      query: sum(llm_inference_queue_depth{job="distributed-llm-agent"})
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: distributed-llm-agent-gpu-scaledobject
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm-agent
+    variant: gpu
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: distributed-llm-agent-gpu-deployment
+  pollingInterval: 10  # More frequent polling for GPU nodes
+  cooldownPeriod: 600  # Longer cooldown for expensive GPU resources
+  idleReplicaCount: 0  # Can scale to zero for cost savings
+  minReplicaCount: 0
+  maxReplicaCount: 5   # Limited by GPU availability
+  fallback:
+    failureThreshold: 3
+    replicas: 1
+  triggers:
+  # Scale based on GPU utilization
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: llm_gpu_usage_percent
+      threshold: '60'
+      query: avg(llm_gpu_usage_percent{job="distributed-llm-agent-gpu"})
+  # Scale based on GPU memory utilization
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: llm_gpu_memory_usage_percent
+      threshold: '70'
+      query: avg((llm_gpu_memory_used_mb{job="distributed-llm-agent-gpu"} / llm_gpu_memory_total_mb{job="distributed-llm-agent-gpu"}) * 100)
+  # Scale based on large model inference requests
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: llm_large_model_requests
+      threshold: '2'
+      query: sum(rate(llm_inference_requests_total{job="distributed-llm-agent-gpu",model_size="large"}[5m]))
+  # Scale based on tokens per second demand
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: llm_tokens_per_second_demand
+      threshold: '100'
+      query: sum(llm_inference_tokens_per_second{job="distributed-llm-agent-gpu"})
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: distributed-llm-prometheus-scaledobject
+  namespace: distributed-llm
+  labels:
+    app: prometheus
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: prometheus
+  pollingInterval: 30
+  cooldownPeriod: 300
+  idleReplicaCount: 1
+  minReplicaCount: 1
+  maxReplicaCount: 3
+  triggers:
+  # Scale based on Prometheus query load
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: prometheus_engine_queries_concurrent_max
+      threshold: '10'
+      query: prometheus_engine_queries_concurrent_max
+  # Scale based on ingestion rate
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.distributed-llm.svc.cluster.local:9090
+      metricName: prometheus_tsdb_symbol_table_size_bytes
+      threshold: '1000000000'  # 1GB
+      query: prometheus_tsdb_symbol_table_size_bytes
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: keda-metrics-server
+  namespace: distributed-llm
+  labels:
+    app: keda-metrics-server
+spec:
+  selector:
+    matchLabels:
+      app: keda-metrics-server
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics

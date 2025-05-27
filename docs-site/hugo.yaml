@@ -1,0 +1,77 @@
+baseURL: 'https://billy-davies-2.github.io/distributed-llm'
+languageCode: 'en-us'
+title: 'Distributed LLM - Documentation'
+theme: 'docsy'
+
+params:
+  version: '1.0.0'
+  github_repo: 'https://github.com/Billy-Davies-2/distributed-llm'
+  github_branch: 'main'
+  edit_page: true
+  search:
+    enabled: true
+  
+  # UI customization
+  ui:
+    sidebar_menu_compact: true
+    sidebar_menu_foldable: true
+    breadcrumb_disable: false
+    navbar_logo: true
+    footer_about_disable: false
+
+  # GitHub integration
+  github:
+    repo: 'https://github.com/Billy-Davies-2/distributed-llm'
+    branch: 'main'
+
+  # Links
+  links:
+    user:
+      - name: "GitHub Repository"
+        url: "https://github.com/Billy-Davies-2/distributed-llm"
+        icon: "fab fa-github"
+        desc: "Source code on GitHub"
+      - name: "Docker Hub"
+        url: "https://hub.docker.com/r/distributed-llm"
+        icon: "fab fa-docker"
+        desc: "Docker images"
+    developer:
+      - name: "GitHub Issues"
+        url: "https://github.com/Billy-Davies-2/distributed-llm/issues"
+        icon: "fab fa-github"
+        desc: "Report bugs and feature requests"
+      - name: "Discussions"
+        url: "https://github.com/Billy-Davies-2/distributed-llm/discussions"
+        icon: "fa fa-comments"
+        desc: "Community discussions"
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    style: github
+    lineNos: true
+    lineNumbersInTable: false
+
+menu:
+  main:
+    - name: "Documentation"
+      url: "/docs/"
+      weight: 10
+    - name: "API Reference"
+      url: "/api/"
+      weight: 20
+    - name: "Examples"
+      url: "/examples/"
+      weight: 30
+    - name: "GitHub"
+      url: "https://github.com/Billy-Davies-2/distributed-llm"
+      weight: 40
+
+module:
+  imports:
+    - path: github.com/google/docsy
+      disable: false
+    - path: github.com/google/docsy/dependencies
+      disable: false

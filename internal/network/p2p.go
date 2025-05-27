@@ -256,3 +256,115 @@ func (s *NodeServer) HealthCheck(ctx context.Context, req *pb.HealthCheckRequest
 		UptimeSeconds: 3600,
 	}, nil
 }
+
+func (s *NodeServer) GetPeers(ctx context.Context, req *pb.GetPeersRequest) (*pb.GetPeersResponse, error) {
+	nodes := s.network.GetNodes()
+	peers := make([]*pb.NodeInfo, len(nodes))
+
+	for i, node := range nodes {
+		gpus := make([]*pb.GPUInfo, len(node.Resources.GPUs))
+		for j, gpu := range node.Resources.GPUs {
+			gpus[j] = &pb.GPUInfo{
+				Name:     gpu.Name,
+				MemoryMb: gpu.MemoryMB,
+				Uuid:     gpu.UUID,
+			}
+		}
+
+		peers[i] = &pb.NodeInfo{
+			NodeId:  node.ID,
+			Address: node.Address,
+			Port:    int32(node.Port),
+			Resources: &pb.ResourceInfo{
+				CpuCores:   node.Resources.CPUCores,
+				MemoryMb:   node.Resources.MemoryMB,
+				Gpus:       gpus,
+				MaxLayers:  node.Resources.MaxLayers,
+				UsedLayers: node.Resources.UsedLayers,
+			},
+			Status:   string(node.Status),
+			LastSeen: node.LastSeen.Unix(),
+		}
+	}
+
+	return &pb.GetPeersResponse{
+		Peers: peers,
+	}, nil
+}
+
+func (s *NodeServer) GetMetrics(ctx context.Context, req *pb.GetMetricsRequest) (*pb.GetMetricsResponse, error) {
+	if s.network.metricsCollector == nil {
+		return nil, fmt.Errorf("metrics collector not available")
+	}
+
+	// Get current metrics from the collector
+	// This is a simplified implementation - in reality we'd get actual metrics
+	return &pb.GetMetricsResponse{
+		Metrics: &pb.NodeMetrics{
+			ResourceMetrics: &pb.ResourceMetrics{
+				CpuUsagePercent: 50.0,
+				MemoryUsedMb:    4096,
+				MemoryTotalMb:   8192,
+				LayersAllocated: 5,
+				LayersTotal:     10,
+			},
+			NetworkMetrics: &pb.NetworkMetrics{
+				BytesSent:         1024000,
+				BytesReceived:     2048000,
+				ActiveConnections: 3,
+				LatencyMs:         15.5,
+				MessagesSent:      100,
+				MessagesReceived:  150,
+			},
+			InferenceMetrics: &pb.InferenceMetrics{
+				RequestsTotal:   500,
+				RequestsActive:  2,
+				AvgLatencyMs:    125.0,
+				TokensGenerated: 50000,
+				TokensPerSecond: 25.0,
+				ErrorsTotal:     5,
+			},
+			SystemMetrics: &pb.SystemMetrics{
+				UptimeSeconds:   3600,
+				Goroutines:      50,
+				MemoryAllocated: 104857600, // 100MB
+				GcCycles:        25,
+				LoadAverage:     1.5,
+			},
+		},
+		Timestamp: time.Now().Unix(),
+	}, nil
+}
+
+func (s *NodeServer) StreamMetrics(req *pb.StreamMetricsRequest, stream pb.NodeService_StreamMetricsServer) error {
+	interval := time.Duration(req.IntervalSeconds) * time.Second
+	if interval < time.Second {
+		interval = time.Second // Minimum 1 second
+	}
+
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-stream.Context().Done():
+			return stream.Context().Err()
+		case <-ticker.C:
+			// Get current metrics
+			metricsResp, err := s.GetMetrics(stream.Context(), &pb.GetMetricsRequest{NodeId: req.NodeId})
+			if err != nil {
+				continue
+			}
+
+			update := &pb.MetricsUpdate{
+				NodeId:    s.network.nodeID,
+				Metrics:   metricsResp.Metrics,
+				Timestamp: time.Now().Unix(),
+			}
+
+			if err := stream.Send(update); err != nil {
+				return err
+			}
+		}
+	}
+}

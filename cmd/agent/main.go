@@ -60,14 +60,14 @@ func main() {
 	}
 
 	// Create P2P network with metrics
-	network, err := network.NewP2PNetwork(*nodeID, *bindPort, *gossipPort)
+	p2pNetwork, err := network.NewP2PNetwork(*nodeID, *bindPort, *gossipPort)
 	if err != nil {
 		logger.Error("Failed to create P2P network", "error", err)
 		os.Exit(1)
 	}
 
 	// Set metrics collector in network (we'll add this method)
-	network.SetMetricsCollector(metricsCollector)
+	p2pNetwork.SetMetricsCollector(metricsCollector)
 
 	// Create and configure broadcaster
 	broadcaster := agent.NewBroadcaster()
@@ -81,14 +81,28 @@ func main() {
 	logger.Info("Broadcaster started")
 
 	// Start the network
-	if err := network.Start(seeds); err != nil {
+	if err := p2pNetwork.Start(seeds); err != nil {
 		logger.Error("Failed to start P2P network", "error", err)
 		os.Exit(1)
 	}
 
+	// Start gRPC server with compression support
+	grpcServer, err := network.NewGRPCServer(p2pNetwork, *bindPort)
+	if err != nil {
+		logger.Error("Failed to create gRPC server", "error", err)
+		os.Exit(1)
+	}
+
+	// Start gRPC server in background
+	go func() {
+		if err := grpcServer.Start(); err != nil {
+			logger.Error("gRPC server failed", "error", err)
+		}
+	}()
+
 	logger.Info("Agent started successfully")
 	logger.Info("Node ID", "nodeID", *nodeID)
-	logger.Info("gRPC server listening", "port", *bindPort)
+	logger.Info("gRPC server with compression listening", "port", *bindPort)
 	logger.Info("Memberlist gossip", "port", *gossipPort)
 	logger.Info("Metrics endpoint", "url", fmt.Sprintf("http://localhost:%d/metrics", *metricsPort))
 	if len(seeds) > 0 {
@@ -102,11 +116,21 @@ func main() {
 	<-c
 	logger.Info("Shutting down agent...")
 
+	// Stop gRPC server
+	grpcServer.Stop()
+	logger.Info("gRPC server stopped")
+
+	// Stop P2P network
+	p2pNetwork.Stop()
+	logger.Info("P2P network stopped")
+
+	// Stop broadcaster
+	// broadcaster doesn't have a Stop method in our implementation
+
 	// Stop metrics collector
 	if err := metricsCollector.Stop(); err != nil {
 		logger.Error("Error stopping metrics collector", "error", err)
 	}
 
-	network.Stop()
 	logger.Info("Agent shutdown complete")
 }

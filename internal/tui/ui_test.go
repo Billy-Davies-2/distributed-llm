@@ -291,11 +291,11 @@ func TestRenderMethods(t *testing.T) {
 	if !strings.Contains(cleanModelsView, "MODEL REPOSITORY") {
 		t.Error("Models view should contain model repository header")
 	}
-
 	// Test inference tab rendering
 	model.currentTab = TabInference
 	inferenceView := model.renderInferenceTab()
 	cleanInferenceView := stripANSI(inferenceView)
+
 	if !strings.Contains(cleanInferenceView, "INFERENCE CONSOLE") {
 		t.Error("Inference view should contain inference console header")
 	}

@@ -1,0 +1,122 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: distributed-llm-agent-vpa
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm-agent
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: DaemonSet
+    name: distributed-llm-agent
+  updatePolicy:
+    updateMode: "Auto"  # Auto, Initial, or Off
+  resourcePolicy:
+    containerPolicies:
+    - containerName: agent
+      minAllowed:
+        cpu: "100m"
+        memory: "128Mi"
+      maxAllowed:
+        cpu: "4"
+        memory: "8Gi"
+      controlledResources: ["cpu", "memory"]
+      controlledValues: RequestsAndLimits
+    - containerName: metrics-sidecar
+      minAllowed:
+        cpu: "10m"
+        memory: "32Mi"
+      maxAllowed:
+        cpu: "100m"
+        memory: "256Mi"
+      controlledResources: ["cpu", "memory"]
+      controlledValues: RequestsAndLimits
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: distributed-llm-agent-gpu-vpa
+  namespace: distributed-llm
+  labels:
+    app: distributed-llm-agent
+    variant: gpu
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: DaemonSet
+    name: distributed-llm-agent-gpu
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: agent
+      minAllowed:
+        cpu: "500m"
+        memory: "1Gi"
+      maxAllowed:
+        cpu: "8"
+        memory: "16Gi"
+      controlledResources: ["cpu", "memory"]
+      controlledValues: RequestsAndLimits
+    - containerName: gpu-metrics-sidecar
+      minAllowed:
+        cpu: "10m"
+        memory: "32Mi"
+      maxAllowed:
+        cpu: "200m"
+        memory: "512Mi"
+      controlledResources: ["cpu", "memory"]
+      controlledValues: RequestsAndLimits
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: distributed-llm-prometheus-vpa
+  namespace: distributed-llm
+  labels:
+    app: prometheus
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: prometheus
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: prometheus
+      minAllowed:
+        cpu: "100m"
+        memory: "256Mi"
+      maxAllowed:
+        cpu: "2"
+        memory: "4Gi"
+      controlledResources: ["cpu", "memory"]
+      controlledValues: RequestsAndLimits
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: distributed-llm-grafana-vpa
+  namespace: distributed-llm
+  labels:
+    app: grafana
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: grafana
+  updatePolicy:
+    updateMode: "Initial"  # Less aggressive for UI components
+  resourcePolicy:
+    containerPolicies:
+    - containerName: grafana
+      minAllowed:
+        cpu: "50m"
+        memory: "128Mi"
+      maxAllowed:
+        cpu: "1"
+        memory: "2Gi"
+      controlledResources: ["cpu", "memory"]
+      controlledValues: RequestsAndLimits

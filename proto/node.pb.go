@@ -626,6 +626,2007 @@ func (x *HealthCheckResponse) GetUptimeSeconds() int64 {
 	return 0
 }
 
+// Peer discovery messages
+type GetPeersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPeersRequest) Reset() {
+	*x = GetPeersRequest{}
+	mi := &file_proto_node_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPeersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPeersRequest) ProtoMessage() {}
+
+func (x *GetPeersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPeersRequest.ProtoReflect.Descriptor instead.
+func (*GetPeersRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetPeersRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+type GetPeersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Peers         []*NodeInfo            `protobuf:"bytes,1,rep,name=peers,proto3" json:"peers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPeersResponse) Reset() {
+	*x = GetPeersResponse{}
+	mi := &file_proto_node_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPeersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPeersResponse) ProtoMessage() {}
+
+func (x *GetPeersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPeersResponse.ProtoReflect.Descriptor instead.
+func (*GetPeersResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetPeersResponse) GetPeers() []*NodeInfo {
+	if x != nil {
+		return x.Peers
+	}
+	return nil
+}
+
+type NodeInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	Address       string                 `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+	Port          int32                  `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+	Resources     *ResourceInfo          `protobuf:"bytes,4,opt,name=resources,proto3" json:"resources,omitempty"`
+	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	LastSeen      int64                  `protobuf:"varint,6,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeInfo) Reset() {
+	*x = NodeInfo{}
+	mi := &file_proto_node_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeInfo) ProtoMessage() {}
+
+func (x *NodeInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeInfo.ProtoReflect.Descriptor instead.
+func (*NodeInfo) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *NodeInfo) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *NodeInfo) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *NodeInfo) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *NodeInfo) GetResources() *ResourceInfo {
+	if x != nil {
+		return x.Resources
+	}
+	return nil
+}
+
+func (x *NodeInfo) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *NodeInfo) GetLastSeen() int64 {
+	if x != nil {
+		return x.LastSeen
+	}
+	return 0
+}
+
+// Discovery service messages
+type DiscoveryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequesterId   string                 `protobuf:"bytes,1,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	KnownNodes    []string               `protobuf:"bytes,2,rep,name=known_nodes,json=knownNodes,proto3" json:"known_nodes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DiscoveryRequest) Reset() {
+	*x = DiscoveryRequest{}
+	mi := &file_proto_node_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DiscoveryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DiscoveryRequest) ProtoMessage() {}
+
+func (x *DiscoveryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DiscoveryRequest.ProtoReflect.Descriptor instead.
+func (*DiscoveryRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *DiscoveryRequest) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+func (x *DiscoveryRequest) GetKnownNodes() []string {
+	if x != nil {
+		return x.KnownNodes
+	}
+	return nil
+}
+
+type DiscoveryResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	DiscoveredNodes []*NodeInfo            `protobuf:"bytes,1,rep,name=discovered_nodes,json=discoveredNodes,proto3" json:"discovered_nodes,omitempty"`
+	Success         bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+	Message         string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DiscoveryResponse) Reset() {
+	*x = DiscoveryResponse{}
+	mi := &file_proto_node_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DiscoveryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DiscoveryResponse) ProtoMessage() {}
+
+func (x *DiscoveryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DiscoveryResponse.ProtoReflect.Descriptor instead.
+func (*DiscoveryResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *DiscoveryResponse) GetDiscoveredNodes() []*NodeInfo {
+	if x != nil {
+		return x.DiscoveredNodes
+	}
+	return nil
+}
+
+func (x *DiscoveryResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *DiscoveryResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type ClusterJoinRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	Address       string                 `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+	Port          int32                  `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+	Resources     *ResourceInfo          `protobuf:"bytes,4,opt,name=resources,proto3" json:"resources,omitempty"`
+	SeedNodes     []string               `protobuf:"bytes,5,rep,name=seed_nodes,json=seedNodes,proto3" json:"seed_nodes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClusterJoinRequest) Reset() {
+	*x = ClusterJoinRequest{}
+	mi := &file_proto_node_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClusterJoinRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterJoinRequest) ProtoMessage() {}
+
+func (x *ClusterJoinRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterJoinRequest.ProtoReflect.Descriptor instead.
+func (*ClusterJoinRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ClusterJoinRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *ClusterJoinRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *ClusterJoinRequest) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *ClusterJoinRequest) GetResources() *ResourceInfo {
+	if x != nil {
+		return x.Resources
+	}
+	return nil
+}
+
+func (x *ClusterJoinRequest) GetSeedNodes() []string {
+	if x != nil {
+		return x.SeedNodes
+	}
+	return nil
+}
+
+type ClusterJoinResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	ExistingNodes []*NodeInfo            `protobuf:"bytes,3,rep,name=existing_nodes,json=existingNodes,proto3" json:"existing_nodes,omitempty"`
+	ClusterId     string                 `protobuf:"bytes,4,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClusterJoinResponse) Reset() {
+	*x = ClusterJoinResponse{}
+	mi := &file_proto_node_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClusterJoinResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterJoinResponse) ProtoMessage() {}
+
+func (x *ClusterJoinResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterJoinResponse.ProtoReflect.Descriptor instead.
+func (*ClusterJoinResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ClusterJoinResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ClusterJoinResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ClusterJoinResponse) GetExistingNodes() []*NodeInfo {
+	if x != nil {
+		return x.ExistingNodes
+	}
+	return nil
+}
+
+func (x *ClusterJoinResponse) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type ClusterLeaveRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	Reason        string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClusterLeaveRequest) Reset() {
+	*x = ClusterLeaveRequest{}
+	mi := &file_proto_node_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClusterLeaveRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterLeaveRequest) ProtoMessage() {}
+
+func (x *ClusterLeaveRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterLeaveRequest.ProtoReflect.Descriptor instead.
+func (*ClusterLeaveRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ClusterLeaveRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *ClusterLeaveRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type ClusterLeaveResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClusterLeaveResponse) Reset() {
+	*x = ClusterLeaveResponse{}
+	mi := &file_proto_node_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClusterLeaveResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterLeaveResponse) ProtoMessage() {}
+
+func (x *ClusterLeaveResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterLeaveResponse.ProtoReflect.Descriptor instead.
+func (*ClusterLeaveResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ClusterLeaveResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ClusterLeaveResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type ClusterInfoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequesterId   string                 `protobuf:"bytes,1,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClusterInfoRequest) Reset() {
+	*x = ClusterInfoRequest{}
+	mi := &file_proto_node_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClusterInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterInfoRequest) ProtoMessage() {}
+
+func (x *ClusterInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterInfoRequest.ProtoReflect.Descriptor instead.
+func (*ClusterInfoRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ClusterInfoRequest) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+type ClusterInfoResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	Nodes         []*NodeInfo            `protobuf:"bytes,2,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	Models        []*ModelInfo           `protobuf:"bytes,3,rep,name=models,proto3" json:"models,omitempty"`
+	Metrics       *ClusterMetrics        `protobuf:"bytes,4,opt,name=metrics,proto3" json:"metrics,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClusterInfoResponse) Reset() {
+	*x = ClusterInfoResponse{}
+	mi := &file_proto_node_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClusterInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterInfoResponse) ProtoMessage() {}
+
+func (x *ClusterInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterInfoResponse.ProtoReflect.Descriptor instead.
+func (*ClusterInfoResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ClusterInfoResponse) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *ClusterInfoResponse) GetNodes() []*NodeInfo {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
+func (x *ClusterInfoResponse) GetModels() []*ModelInfo {
+	if x != nil {
+		return x.Models
+	}
+	return nil
+}
+
+func (x *ClusterInfoResponse) GetMetrics() *ClusterMetrics {
+	if x != nil {
+		return x.Metrics
+	}
+	return nil
+}
+
+// Model information
+type ModelInfo struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Version         string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`
+	LayerCount      int32                  `protobuf:"varint,4,opt,name=layer_count,json=layerCount,proto3" json:"layer_count,omitempty"`
+	FilePath        string                 `protobuf:"bytes,5,opt,name=file_path,json=filePath,proto3" json:"file_path,omitempty"`
+	SizeBytes       int64                  `protobuf:"varint,6,opt,name=size_bytes,json=sizeBytes,proto3" json:"size_bytes,omitempty"`
+	NodeAssignments []string               `protobuf:"bytes,7,rep,name=node_assignments,json=nodeAssignments,proto3" json:"node_assignments,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ModelInfo) Reset() {
+	*x = ModelInfo{}
+	mi := &file_proto_node_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelInfo) ProtoMessage() {}
+
+func (x *ModelInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelInfo.ProtoReflect.Descriptor instead.
+func (*ModelInfo) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ModelInfo) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ModelInfo) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ModelInfo) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
+func (x *ModelInfo) GetLayerCount() int32 {
+	if x != nil {
+		return x.LayerCount
+	}
+	return 0
+}
+
+func (x *ModelInfo) GetFilePath() string {
+	if x != nil {
+		return x.FilePath
+	}
+	return ""
+}
+
+func (x *ModelInfo) GetSizeBytes() int64 {
+	if x != nil {
+		return x.SizeBytes
+	}
+	return 0
+}
+
+func (x *ModelInfo) GetNodeAssignments() []string {
+	if x != nil {
+		return x.NodeAssignments
+	}
+	return nil
+}
+
+// Metrics messages
+type GetMetricsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	MetricTypes   []string               `protobuf:"bytes,2,rep,name=metric_types,json=metricTypes,proto3" json:"metric_types,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMetricsRequest) Reset() {
+	*x = GetMetricsRequest{}
+	mi := &file_proto_node_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMetricsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMetricsRequest) ProtoMessage() {}
+
+func (x *GetMetricsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMetricsRequest.ProtoReflect.Descriptor instead.
+func (*GetMetricsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *GetMetricsRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *GetMetricsRequest) GetMetricTypes() []string {
+	if x != nil {
+		return x.MetricTypes
+	}
+	return nil
+}
+
+type GetMetricsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metrics       *NodeMetrics           `protobuf:"bytes,1,opt,name=metrics,proto3" json:"metrics,omitempty"`
+	Timestamp     int64                  `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMetricsResponse) Reset() {
+	*x = GetMetricsResponse{}
+	mi := &file_proto_node_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMetricsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMetricsResponse) ProtoMessage() {}
+
+func (x *GetMetricsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMetricsResponse.ProtoReflect.Descriptor instead.
+func (*GetMetricsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *GetMetricsResponse) GetMetrics() *NodeMetrics {
+	if x != nil {
+		return x.Metrics
+	}
+	return nil
+}
+
+func (x *GetMetricsResponse) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+type StreamMetricsRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	NodeId          string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	IntervalSeconds int32                  `protobuf:"varint,2,opt,name=interval_seconds,json=intervalSeconds,proto3" json:"interval_seconds,omitempty"`
+	MetricTypes     []string               `protobuf:"bytes,3,rep,name=metric_types,json=metricTypes,proto3" json:"metric_types,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *StreamMetricsRequest) Reset() {
+	*x = StreamMetricsRequest{}
+	mi := &file_proto_node_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamMetricsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamMetricsRequest) ProtoMessage() {}
+
+func (x *StreamMetricsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamMetricsRequest.ProtoReflect.Descriptor instead.
+func (*StreamMetricsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *StreamMetricsRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *StreamMetricsRequest) GetIntervalSeconds() int32 {
+	if x != nil {
+		return x.IntervalSeconds
+	}
+	return 0
+}
+
+func (x *StreamMetricsRequest) GetMetricTypes() []string {
+	if x != nil {
+		return x.MetricTypes
+	}
+	return nil
+}
+
+type MetricsUpdate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        string                 `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	Metrics       *NodeMetrics           `protobuf:"bytes,2,opt,name=metrics,proto3" json:"metrics,omitempty"`
+	Timestamp     int64                  `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MetricsUpdate) Reset() {
+	*x = MetricsUpdate{}
+	mi := &file_proto_node_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MetricsUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetricsUpdate) ProtoMessage() {}
+
+func (x *MetricsUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetricsUpdate.ProtoReflect.Descriptor instead.
+func (*MetricsUpdate) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *MetricsUpdate) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *MetricsUpdate) GetMetrics() *NodeMetrics {
+	if x != nil {
+		return x.Metrics
+	}
+	return nil
+}
+
+func (x *MetricsUpdate) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+type NodeMetrics struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ResourceMetrics  *ResourceMetrics       `protobuf:"bytes,1,opt,name=resource_metrics,json=resourceMetrics,proto3" json:"resource_metrics,omitempty"`
+	NetworkMetrics   *NetworkMetrics        `protobuf:"bytes,2,opt,name=network_metrics,json=networkMetrics,proto3" json:"network_metrics,omitempty"`
+	InferenceMetrics *InferenceMetrics      `protobuf:"bytes,3,opt,name=inference_metrics,json=inferenceMetrics,proto3" json:"inference_metrics,omitempty"`
+	SystemMetrics    *SystemMetrics         `protobuf:"bytes,4,opt,name=system_metrics,json=systemMetrics,proto3" json:"system_metrics,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *NodeMetrics) Reset() {
+	*x = NodeMetrics{}
+	mi := &file_proto_node_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeMetrics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeMetrics) ProtoMessage() {}
+
+func (x *NodeMetrics) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeMetrics.ProtoReflect.Descriptor instead.
+func (*NodeMetrics) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *NodeMetrics) GetResourceMetrics() *ResourceMetrics {
+	if x != nil {
+		return x.ResourceMetrics
+	}
+	return nil
+}
+
+func (x *NodeMetrics) GetNetworkMetrics() *NetworkMetrics {
+	if x != nil {
+		return x.NetworkMetrics
+	}
+	return nil
+}
+
+func (x *NodeMetrics) GetInferenceMetrics() *InferenceMetrics {
+	if x != nil {
+		return x.InferenceMetrics
+	}
+	return nil
+}
+
+func (x *NodeMetrics) GetSystemMetrics() *SystemMetrics {
+	if x != nil {
+		return x.SystemMetrics
+	}
+	return nil
+}
+
+type ResourceMetrics struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	CpuUsagePercent float32                `protobuf:"fixed32,1,opt,name=cpu_usage_percent,json=cpuUsagePercent,proto3" json:"cpu_usage_percent,omitempty"`
+	MemoryUsedMb    int64                  `protobuf:"varint,2,opt,name=memory_used_mb,json=memoryUsedMb,proto3" json:"memory_used_mb,omitempty"`
+	MemoryTotalMb   int64                  `protobuf:"varint,3,opt,name=memory_total_mb,json=memoryTotalMb,proto3" json:"memory_total_mb,omitempty"`
+	GpuMetrics      []*GPUMetrics          `protobuf:"bytes,4,rep,name=gpu_metrics,json=gpuMetrics,proto3" json:"gpu_metrics,omitempty"`
+	LayersAllocated int32                  `protobuf:"varint,5,opt,name=layers_allocated,json=layersAllocated,proto3" json:"layers_allocated,omitempty"`
+	LayersTotal     int32                  `protobuf:"varint,6,opt,name=layers_total,json=layersTotal,proto3" json:"layers_total,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ResourceMetrics) Reset() {
+	*x = ResourceMetrics{}
+	mi := &file_proto_node_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResourceMetrics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResourceMetrics) ProtoMessage() {}
+
+func (x *ResourceMetrics) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResourceMetrics.ProtoReflect.Descriptor instead.
+func (*ResourceMetrics) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *ResourceMetrics) GetCpuUsagePercent() float32 {
+	if x != nil {
+		return x.CpuUsagePercent
+	}
+	return 0
+}
+
+func (x *ResourceMetrics) GetMemoryUsedMb() int64 {
+	if x != nil {
+		return x.MemoryUsedMb
+	}
+	return 0
+}
+
+func (x *ResourceMetrics) GetMemoryTotalMb() int64 {
+	if x != nil {
+		return x.MemoryTotalMb
+	}
+	return 0
+}
+
+func (x *ResourceMetrics) GetGpuMetrics() []*GPUMetrics {
+	if x != nil {
+		return x.GpuMetrics
+	}
+	return nil
+}
+
+func (x *ResourceMetrics) GetLayersAllocated() int32 {
+	if x != nil {
+		return x.LayersAllocated
+	}
+	return 0
+}
+
+func (x *ResourceMetrics) GetLayersTotal() int32 {
+	if x != nil {
+		return x.LayersTotal
+	}
+	return 0
+}
+
+type GPUMetrics struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	GpuId              string                 `protobuf:"bytes,1,opt,name=gpu_id,json=gpuId,proto3" json:"gpu_id,omitempty"`
+	UsagePercent       float32                `protobuf:"fixed32,2,opt,name=usage_percent,json=usagePercent,proto3" json:"usage_percent,omitempty"`
+	MemoryUsedMb       int64                  `protobuf:"varint,3,opt,name=memory_used_mb,json=memoryUsedMb,proto3" json:"memory_used_mb,omitempty"`
+	MemoryTotalMb      int64                  `protobuf:"varint,4,opt,name=memory_total_mb,json=memoryTotalMb,proto3" json:"memory_total_mb,omitempty"`
+	TemperatureCelsius float32                `protobuf:"fixed32,5,opt,name=temperature_celsius,json=temperatureCelsius,proto3" json:"temperature_celsius,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *GPUMetrics) Reset() {
+	*x = GPUMetrics{}
+	mi := &file_proto_node_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GPUMetrics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GPUMetrics) ProtoMessage() {}
+
+func (x *GPUMetrics) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GPUMetrics.ProtoReflect.Descriptor instead.
+func (*GPUMetrics) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *GPUMetrics) GetGpuId() string {
+	if x != nil {
+		return x.GpuId
+	}
+	return ""
+}
+
+func (x *GPUMetrics) GetUsagePercent() float32 {
+	if x != nil {
+		return x.UsagePercent
+	}
+	return 0
+}
+
+func (x *GPUMetrics) GetMemoryUsedMb() int64 {
+	if x != nil {
+		return x.MemoryUsedMb
+	}
+	return 0
+}
+
+func (x *GPUMetrics) GetMemoryTotalMb() int64 {
+	if x != nil {
+		return x.MemoryTotalMb
+	}
+	return 0
+}
+
+func (x *GPUMetrics) GetTemperatureCelsius() float32 {
+	if x != nil {
+		return x.TemperatureCelsius
+	}
+	return 0
+}
+
+type NetworkMetrics struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	BytesSent         int64                  `protobuf:"varint,1,opt,name=bytes_sent,json=bytesSent,proto3" json:"bytes_sent,omitempty"`
+	BytesReceived     int64                  `protobuf:"varint,2,opt,name=bytes_received,json=bytesReceived,proto3" json:"bytes_received,omitempty"`
+	ActiveConnections int32                  `protobuf:"varint,3,opt,name=active_connections,json=activeConnections,proto3" json:"active_connections,omitempty"`
+	LatencyMs         float32                `protobuf:"fixed32,4,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
+	MessagesSent      int32                  `protobuf:"varint,5,opt,name=messages_sent,json=messagesSent,proto3" json:"messages_sent,omitempty"`
+	MessagesReceived  int32                  `protobuf:"varint,6,opt,name=messages_received,json=messagesReceived,proto3" json:"messages_received,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *NetworkMetrics) Reset() {
+	*x = NetworkMetrics{}
+	mi := &file_proto_node_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NetworkMetrics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NetworkMetrics) ProtoMessage() {}
+
+func (x *NetworkMetrics) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NetworkMetrics.ProtoReflect.Descriptor instead.
+func (*NetworkMetrics) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *NetworkMetrics) GetBytesSent() int64 {
+	if x != nil {
+		return x.BytesSent
+	}
+	return 0
+}
+
+func (x *NetworkMetrics) GetBytesReceived() int64 {
+	if x != nil {
+		return x.BytesReceived
+	}
+	return 0
+}
+
+func (x *NetworkMetrics) GetActiveConnections() int32 {
+	if x != nil {
+		return x.ActiveConnections
+	}
+	return 0
+}
+
+func (x *NetworkMetrics) GetLatencyMs() float32 {
+	if x != nil {
+		return x.LatencyMs
+	}
+	return 0
+}
+
+func (x *NetworkMetrics) GetMessagesSent() int32 {
+	if x != nil {
+		return x.MessagesSent
+	}
+	return 0
+}
+
+func (x *NetworkMetrics) GetMessagesReceived() int32 {
+	if x != nil {
+		return x.MessagesReceived
+	}
+	return 0
+}
+
+type InferenceMetrics struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	RequestsTotal   int32                  `protobuf:"varint,1,opt,name=requests_total,json=requestsTotal,proto3" json:"requests_total,omitempty"`
+	RequestsActive  int32                  `protobuf:"varint,2,opt,name=requests_active,json=requestsActive,proto3" json:"requests_active,omitempty"`
+	AvgLatencyMs    float32                `protobuf:"fixed32,3,opt,name=avg_latency_ms,json=avgLatencyMs,proto3" json:"avg_latency_ms,omitempty"`
+	TokensGenerated int32                  `protobuf:"varint,4,opt,name=tokens_generated,json=tokensGenerated,proto3" json:"tokens_generated,omitempty"`
+	TokensPerSecond float32                `protobuf:"fixed32,5,opt,name=tokens_per_second,json=tokensPerSecond,proto3" json:"tokens_per_second,omitempty"`
+	ErrorsTotal     int32                  `protobuf:"varint,6,opt,name=errors_total,json=errorsTotal,proto3" json:"errors_total,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *InferenceMetrics) Reset() {
+	*x = InferenceMetrics{}
+	mi := &file_proto_node_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InferenceMetrics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InferenceMetrics) ProtoMessage() {}
+
+func (x *InferenceMetrics) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InferenceMetrics.ProtoReflect.Descriptor instead.
+func (*InferenceMetrics) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *InferenceMetrics) GetRequestsTotal() int32 {
+	if x != nil {
+		return x.RequestsTotal
+	}
+	return 0
+}
+
+func (x *InferenceMetrics) GetRequestsActive() int32 {
+	if x != nil {
+		return x.RequestsActive
+	}
+	return 0
+}
+
+func (x *InferenceMetrics) GetAvgLatencyMs() float32 {
+	if x != nil {
+		return x.AvgLatencyMs
+	}
+	return 0
+}
+
+func (x *InferenceMetrics) GetTokensGenerated() int32 {
+	if x != nil {
+		return x.TokensGenerated
+	}
+	return 0
+}
+
+func (x *InferenceMetrics) GetTokensPerSecond() float32 {
+	if x != nil {
+		return x.TokensPerSecond
+	}
+	return 0
+}
+
+func (x *InferenceMetrics) GetErrorsTotal() int32 {
+	if x != nil {
+		return x.ErrorsTotal
+	}
+	return 0
+}
+
+type SystemMetrics struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UptimeSeconds   int64                  `protobuf:"varint,1,opt,name=uptime_seconds,json=uptimeSeconds,proto3" json:"uptime_seconds,omitempty"`
+	Goroutines      int32                  `protobuf:"varint,2,opt,name=goroutines,proto3" json:"goroutines,omitempty"`
+	MemoryAllocated int64                  `protobuf:"varint,3,opt,name=memory_allocated,json=memoryAllocated,proto3" json:"memory_allocated,omitempty"`
+	GcCycles        int64                  `protobuf:"varint,4,opt,name=gc_cycles,json=gcCycles,proto3" json:"gc_cycles,omitempty"`
+	LoadAverage     float32                `protobuf:"fixed32,5,opt,name=load_average,json=loadAverage,proto3" json:"load_average,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SystemMetrics) Reset() {
+	*x = SystemMetrics{}
+	mi := &file_proto_node_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SystemMetrics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SystemMetrics) ProtoMessage() {}
+
+func (x *SystemMetrics) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SystemMetrics.ProtoReflect.Descriptor instead.
+func (*SystemMetrics) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *SystemMetrics) GetUptimeSeconds() int64 {
+	if x != nil {
+		return x.UptimeSeconds
+	}
+	return 0
+}
+
+func (x *SystemMetrics) GetGoroutines() int32 {
+	if x != nil {
+		return x.Goroutines
+	}
+	return 0
+}
+
+func (x *SystemMetrics) GetMemoryAllocated() int64 {
+	if x != nil {
+		return x.MemoryAllocated
+	}
+	return 0
+}
+
+func (x *SystemMetrics) GetGcCycles() int64 {
+	if x != nil {
+		return x.GcCycles
+	}
+	return 0
+}
+
+func (x *SystemMetrics) GetLoadAverage() float32 {
+	if x != nil {
+		return x.LoadAverage
+	}
+	return 0
+}
+
+type ClusterMetrics struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	TotalNodes         int32                  `protobuf:"varint,1,opt,name=total_nodes,json=totalNodes,proto3" json:"total_nodes,omitempty"`
+	HealthyNodes       int32                  `protobuf:"varint,2,opt,name=healthy_nodes,json=healthyNodes,proto3" json:"healthy_nodes,omitempty"`
+	TotalMemoryMb      int64                  `protobuf:"varint,3,opt,name=total_memory_mb,json=totalMemoryMb,proto3" json:"total_memory_mb,omitempty"`
+	AvailableMemoryMb  int64                  `protobuf:"varint,4,opt,name=available_memory_mb,json=availableMemoryMb,proto3" json:"available_memory_mb,omitempty"`
+	TotalGpus          int32                  `protobuf:"varint,5,opt,name=total_gpus,json=totalGpus,proto3" json:"total_gpus,omitempty"`
+	TotalLayers        int32                  `protobuf:"varint,6,opt,name=total_layers,json=totalLayers,proto3" json:"total_layers,omitempty"`
+	AllocatedLayers    int32                  `protobuf:"varint,7,opt,name=allocated_layers,json=allocatedLayers,proto3" json:"allocated_layers,omitempty"`
+	ClusterUtilization float32                `protobuf:"fixed32,8,opt,name=cluster_utilization,json=clusterUtilization,proto3" json:"cluster_utilization,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ClusterMetrics) Reset() {
+	*x = ClusterMetrics{}
+	mi := &file_proto_node_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClusterMetrics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterMetrics) ProtoMessage() {}
+
+func (x *ClusterMetrics) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterMetrics.ProtoReflect.Descriptor instead.
+func (*ClusterMetrics) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *ClusterMetrics) GetTotalNodes() int32 {
+	if x != nil {
+		return x.TotalNodes
+	}
+	return 0
+}
+
+func (x *ClusterMetrics) GetHealthyNodes() int32 {
+	if x != nil {
+		return x.HealthyNodes
+	}
+	return 0
+}
+
+func (x *ClusterMetrics) GetTotalMemoryMb() int64 {
+	if x != nil {
+		return x.TotalMemoryMb
+	}
+	return 0
+}
+
+func (x *ClusterMetrics) GetAvailableMemoryMb() int64 {
+	if x != nil {
+		return x.AvailableMemoryMb
+	}
+	return 0
+}
+
+func (x *ClusterMetrics) GetTotalGpus() int32 {
+	if x != nil {
+		return x.TotalGpus
+	}
+	return 0
+}
+
+func (x *ClusterMetrics) GetTotalLayers() int32 {
+	if x != nil {
+		return x.TotalLayers
+	}
+	return 0
+}
+
+func (x *ClusterMetrics) GetAllocatedLayers() int32 {
+	if x != nil {
+		return x.AllocatedLayers
+	}
+	return 0
+}
+
+func (x *ClusterMetrics) GetClusterUtilization() float32 {
+	if x != nil {
+		return x.ClusterUtilization
+	}
+	return 0
+}
+
+// TUI service messages
+type NodeListRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	RequesterId    string                 `protobuf:"bytes,1,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	IncludeMetrics bool                   `protobuf:"varint,2,opt,name=include_metrics,json=includeMetrics,proto3" json:"include_metrics,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NodeListRequest) Reset() {
+	*x = NodeListRequest{}
+	mi := &file_proto_node_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeListRequest) ProtoMessage() {}
+
+func (x *NodeListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeListRequest.ProtoReflect.Descriptor instead.
+func (*NodeListRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *NodeListRequest) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+func (x *NodeListRequest) GetIncludeMetrics() bool {
+	if x != nil {
+		return x.IncludeMetrics
+	}
+	return false
+}
+
+type NodeListResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Nodes          []*NodeInfo            `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	ClusterMetrics *ClusterMetrics        `protobuf:"bytes,2,opt,name=cluster_metrics,json=clusterMetrics,proto3" json:"cluster_metrics,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NodeListResponse) Reset() {
+	*x = NodeListResponse{}
+	mi := &file_proto_node_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeListResponse) ProtoMessage() {}
+
+func (x *NodeListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeListResponse.ProtoReflect.Descriptor instead.
+func (*NodeListResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *NodeListResponse) GetNodes() []*NodeInfo {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
+func (x *NodeListResponse) GetClusterMetrics() *ClusterMetrics {
+	if x != nil {
+		return x.ClusterMetrics
+	}
+	return nil
+}
+
+type ModelListRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequesterId   string                 `protobuf:"bytes,1,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelListRequest) Reset() {
+	*x = ModelListRequest{}
+	mi := &file_proto_node_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelListRequest) ProtoMessage() {}
+
+func (x *ModelListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelListRequest.ProtoReflect.Descriptor instead.
+func (*ModelListRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *ModelListRequest) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+type ModelListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Models        []*ModelInfo           `protobuf:"bytes,1,rep,name=models,proto3" json:"models,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelListResponse) Reset() {
+	*x = ModelListResponse{}
+	mi := &file_proto_node_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelListResponse) ProtoMessage() {}
+
+func (x *ModelListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelListResponse.ProtoReflect.Descriptor instead.
+func (*ModelListResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *ModelListResponse) GetModels() []*ModelInfo {
+	if x != nil {
+		return x.Models
+	}
+	return nil
+}
+
+type UpdateStreamRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	RequesterId     string                 `protobuf:"bytes,1,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	UpdateTypes     []string               `protobuf:"bytes,2,rep,name=update_types,json=updateTypes,proto3" json:"update_types,omitempty"` // "nodes", "models", "metrics"
+	IntervalSeconds int32                  `protobuf:"varint,3,opt,name=interval_seconds,json=intervalSeconds,proto3" json:"interval_seconds,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *UpdateStreamRequest) Reset() {
+	*x = UpdateStreamRequest{}
+	mi := &file_proto_node_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateStreamRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateStreamRequest) ProtoMessage() {}
+
+func (x *UpdateStreamRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateStreamRequest.ProtoReflect.Descriptor instead.
+func (*UpdateStreamRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *UpdateStreamRequest) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+func (x *UpdateStreamRequest) GetUpdateTypes() []string {
+	if x != nil {
+		return x.UpdateTypes
+	}
+	return nil
+}
+
+func (x *UpdateStreamRequest) GetIntervalSeconds() int32 {
+	if x != nil {
+		return x.IntervalSeconds
+	}
+	return 0
+}
+
+type ClusterUpdate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UpdateType    string                 `protobuf:"bytes,1,opt,name=update_type,json=updateType,proto3" json:"update_type,omitempty"`
+	Nodes         []*NodeInfo            `protobuf:"bytes,2,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	Models        []*ModelInfo           `protobuf:"bytes,3,rep,name=models,proto3" json:"models,omitempty"`
+	Metrics       *ClusterMetrics        `protobuf:"bytes,4,opt,name=metrics,proto3" json:"metrics,omitempty"`
+	Timestamp     int64                  `protobuf:"varint,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClusterUpdate) Reset() {
+	*x = ClusterUpdate{}
+	mi := &file_proto_node_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClusterUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterUpdate) ProtoMessage() {}
+
+func (x *ClusterUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterUpdate.ProtoReflect.Descriptor instead.
+func (*ClusterUpdate) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *ClusterUpdate) GetUpdateType() string {
+	if x != nil {
+		return x.UpdateType
+	}
+	return ""
+}
+
+func (x *ClusterUpdate) GetNodes() []*NodeInfo {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
+func (x *ClusterUpdate) GetModels() []*ModelInfo {
+	if x != nil {
+		return x.Models
+	}
+	return nil
+}
+
+func (x *ClusterUpdate) GetMetrics() *ClusterMetrics {
+	if x != nil {
+		return x.Metrics
+	}
+	return nil
+}
+
+func (x *ClusterUpdate) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+type CommandRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequesterId   string                 `protobuf:"bytes,1,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	Command       string                 `protobuf:"bytes,2,opt,name=command,proto3" json:"command,omitempty"`
+	Args          []string               `protobuf:"bytes,3,rep,name=args,proto3" json:"args,omitempty"`
+	Options       map[string]string      `protobuf:"bytes,4,rep,name=options,proto3" json:"options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CommandRequest) Reset() {
+	*x = CommandRequest{}
+	mi := &file_proto_node_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommandRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommandRequest) ProtoMessage() {}
+
+func (x *CommandRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommandRequest.ProtoReflect.Descriptor instead.
+func (*CommandRequest) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *CommandRequest) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+func (x *CommandRequest) GetCommand() string {
+	if x != nil {
+		return x.Command
+	}
+	return ""
+}
+
+func (x *CommandRequest) GetArgs() []string {
+	if x != nil {
+		return x.Args
+	}
+	return nil
+}
+
+func (x *CommandRequest) GetOptions() map[string]string {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+type CommandResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Output        string                 `protobuf:"bytes,2,opt,name=output,proto3" json:"output,omitempty"`
+	Error         string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+	ExitCode      int32                  `protobuf:"varint,4,opt,name=exit_code,json=exitCode,proto3" json:"exit_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CommandResponse) Reset() {
+	*x = CommandResponse{}
+	mi := &file_proto_node_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommandResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommandResponse) ProtoMessage() {}
+
+func (x *CommandResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_node_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommandResponse.ProtoReflect.Descriptor instead.
+func (*CommandResponse) Descriptor() ([]byte, []int) {
+	return file_proto_node_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *CommandResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *CommandResponse) GetOutput() string {
+	if x != nil {
+		return x.Output
+	}
+	return ""
+}
+
+func (x *CommandResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+func (x *CommandResponse) GetExitCode() int32 {
+	if x != nil {
+		return x.ExitCode
+	}
+	return 0
+}
+
 var File_proto_node_proto protoreflect.FileDescriptor
 
 const file_proto_node_proto_rawDesc = "" +
@@ -673,12 +2674,186 @@ const file_proto_node_proto_rawDesc = "" +
 	"\x13HealthCheckResponse\x12\x18\n" +
 	"\ahealthy\x18\x01 \x01(\bR\ahealthy\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12%\n" +
-	"\x0euptime_seconds\x18\x03 \x01(\x03R\ruptimeSeconds2\xac\x02\n" +
+	"\x0euptime_seconds\x18\x03 \x01(\x03R\ruptimeSeconds\"*\n" +
+	"\x0fGetPeersRequest\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\"9\n" +
+	"\x10GetPeersResponse\x12%\n" +
+	"\x05peers\x18\x01 \x03(\v2\x0f.proto.NodeInfoR\x05peers\"\xb9\x01\n" +
+	"\bNodeInfo\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x18\n" +
+	"\aaddress\x18\x02 \x01(\tR\aaddress\x12\x12\n" +
+	"\x04port\x18\x03 \x01(\x05R\x04port\x121\n" +
+	"\tresources\x18\x04 \x01(\v2\x13.proto.ResourceInfoR\tresources\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12\x1b\n" +
+	"\tlast_seen\x18\x06 \x01(\x03R\blastSeen\"V\n" +
+	"\x10DiscoveryRequest\x12!\n" +
+	"\frequester_id\x18\x01 \x01(\tR\vrequesterId\x12\x1f\n" +
+	"\vknown_nodes\x18\x02 \x03(\tR\n" +
+	"knownNodes\"\x83\x01\n" +
+	"\x11DiscoveryResponse\x12:\n" +
+	"\x10discovered_nodes\x18\x01 \x03(\v2\x0f.proto.NodeInfoR\x0fdiscoveredNodes\x12\x18\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\xad\x01\n" +
+	"\x12ClusterJoinRequest\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x18\n" +
+	"\aaddress\x18\x02 \x01(\tR\aaddress\x12\x12\n" +
+	"\x04port\x18\x03 \x01(\x05R\x04port\x121\n" +
+	"\tresources\x18\x04 \x01(\v2\x13.proto.ResourceInfoR\tresources\x12\x1d\n" +
+	"\n" +
+	"seed_nodes\x18\x05 \x03(\tR\tseedNodes\"\xa0\x01\n" +
+	"\x13ClusterJoinResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x126\n" +
+	"\x0eexisting_nodes\x18\x03 \x03(\v2\x0f.proto.NodeInfoR\rexistingNodes\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x04 \x01(\tR\tclusterId\"F\n" +
+	"\x13ClusterLeaveRequest\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x16\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\"J\n" +
+	"\x14ClusterLeaveResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"7\n" +
+	"\x12ClusterInfoRequest\x12!\n" +
+	"\frequester_id\x18\x01 \x01(\tR\vrequesterId\"\xb6\x01\n" +
+	"\x13ClusterInfoResponse\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12%\n" +
+	"\x05nodes\x18\x02 \x03(\v2\x0f.proto.NodeInfoR\x05nodes\x12(\n" +
+	"\x06models\x18\x03 \x03(\v2\x10.proto.ModelInfoR\x06models\x12/\n" +
+	"\ametrics\x18\x04 \x01(\v2\x15.proto.ClusterMetricsR\ametrics\"\xd1\x01\n" +
+	"\tModelInfo\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
+	"\aversion\x18\x03 \x01(\tR\aversion\x12\x1f\n" +
+	"\vlayer_count\x18\x04 \x01(\x05R\n" +
+	"layerCount\x12\x1b\n" +
+	"\tfile_path\x18\x05 \x01(\tR\bfilePath\x12\x1d\n" +
+	"\n" +
+	"size_bytes\x18\x06 \x01(\x03R\tsizeBytes\x12)\n" +
+	"\x10node_assignments\x18\a \x03(\tR\x0fnodeAssignments\"O\n" +
+	"\x11GetMetricsRequest\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12!\n" +
+	"\fmetric_types\x18\x02 \x03(\tR\vmetricTypes\"`\n" +
+	"\x12GetMetricsResponse\x12,\n" +
+	"\ametrics\x18\x01 \x01(\v2\x12.proto.NodeMetricsR\ametrics\x12\x1c\n" +
+	"\ttimestamp\x18\x02 \x01(\x03R\ttimestamp\"}\n" +
+	"\x14StreamMetricsRequest\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12)\n" +
+	"\x10interval_seconds\x18\x02 \x01(\x05R\x0fintervalSeconds\x12!\n" +
+	"\fmetric_types\x18\x03 \x03(\tR\vmetricTypes\"t\n" +
+	"\rMetricsUpdate\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12,\n" +
+	"\ametrics\x18\x02 \x01(\v2\x12.proto.NodeMetricsR\ametrics\x12\x1c\n" +
+	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\"\x93\x02\n" +
+	"\vNodeMetrics\x12A\n" +
+	"\x10resource_metrics\x18\x01 \x01(\v2\x16.proto.ResourceMetricsR\x0fresourceMetrics\x12>\n" +
+	"\x0fnetwork_metrics\x18\x02 \x01(\v2\x15.proto.NetworkMetricsR\x0enetworkMetrics\x12D\n" +
+	"\x11inference_metrics\x18\x03 \x01(\v2\x17.proto.InferenceMetricsR\x10inferenceMetrics\x12;\n" +
+	"\x0esystem_metrics\x18\x04 \x01(\v2\x14.proto.SystemMetricsR\rsystemMetrics\"\x8d\x02\n" +
+	"\x0fResourceMetrics\x12*\n" +
+	"\x11cpu_usage_percent\x18\x01 \x01(\x02R\x0fcpuUsagePercent\x12$\n" +
+	"\x0ememory_used_mb\x18\x02 \x01(\x03R\fmemoryUsedMb\x12&\n" +
+	"\x0fmemory_total_mb\x18\x03 \x01(\x03R\rmemoryTotalMb\x122\n" +
+	"\vgpu_metrics\x18\x04 \x03(\v2\x11.proto.GPUMetricsR\n" +
+	"gpuMetrics\x12)\n" +
+	"\x10layers_allocated\x18\x05 \x01(\x05R\x0flayersAllocated\x12!\n" +
+	"\flayers_total\x18\x06 \x01(\x05R\vlayersTotal\"\xc7\x01\n" +
+	"\n" +
+	"GPUMetrics\x12\x15\n" +
+	"\x06gpu_id\x18\x01 \x01(\tR\x05gpuId\x12#\n" +
+	"\rusage_percent\x18\x02 \x01(\x02R\fusagePercent\x12$\n" +
+	"\x0ememory_used_mb\x18\x03 \x01(\x03R\fmemoryUsedMb\x12&\n" +
+	"\x0fmemory_total_mb\x18\x04 \x01(\x03R\rmemoryTotalMb\x12/\n" +
+	"\x13temperature_celsius\x18\x05 \x01(\x02R\x12temperatureCelsius\"\xf6\x01\n" +
+	"\x0eNetworkMetrics\x12\x1d\n" +
+	"\n" +
+	"bytes_sent\x18\x01 \x01(\x03R\tbytesSent\x12%\n" +
+	"\x0ebytes_received\x18\x02 \x01(\x03R\rbytesReceived\x12-\n" +
+	"\x12active_connections\x18\x03 \x01(\x05R\x11activeConnections\x12\x1d\n" +
+	"\n" +
+	"latency_ms\x18\x04 \x01(\x02R\tlatencyMs\x12#\n" +
+	"\rmessages_sent\x18\x05 \x01(\x05R\fmessagesSent\x12+\n" +
+	"\x11messages_received\x18\x06 \x01(\x05R\x10messagesReceived\"\x82\x02\n" +
+	"\x10InferenceMetrics\x12%\n" +
+	"\x0erequests_total\x18\x01 \x01(\x05R\rrequestsTotal\x12'\n" +
+	"\x0frequests_active\x18\x02 \x01(\x05R\x0erequestsActive\x12$\n" +
+	"\x0eavg_latency_ms\x18\x03 \x01(\x02R\favgLatencyMs\x12)\n" +
+	"\x10tokens_generated\x18\x04 \x01(\x05R\x0ftokensGenerated\x12*\n" +
+	"\x11tokens_per_second\x18\x05 \x01(\x02R\x0ftokensPerSecond\x12!\n" +
+	"\ferrors_total\x18\x06 \x01(\x05R\verrorsTotal\"\xc1\x01\n" +
+	"\rSystemMetrics\x12%\n" +
+	"\x0euptime_seconds\x18\x01 \x01(\x03R\ruptimeSeconds\x12\x1e\n" +
+	"\n" +
+	"goroutines\x18\x02 \x01(\x05R\n" +
+	"goroutines\x12)\n" +
+	"\x10memory_allocated\x18\x03 \x01(\x03R\x0fmemoryAllocated\x12\x1b\n" +
+	"\tgc_cycles\x18\x04 \x01(\x03R\bgcCycles\x12!\n" +
+	"\fload_average\x18\x05 \x01(\x02R\vloadAverage\"\xcc\x02\n" +
+	"\x0eClusterMetrics\x12\x1f\n" +
+	"\vtotal_nodes\x18\x01 \x01(\x05R\n" +
+	"totalNodes\x12#\n" +
+	"\rhealthy_nodes\x18\x02 \x01(\x05R\fhealthyNodes\x12&\n" +
+	"\x0ftotal_memory_mb\x18\x03 \x01(\x03R\rtotalMemoryMb\x12.\n" +
+	"\x13available_memory_mb\x18\x04 \x01(\x03R\x11availableMemoryMb\x12\x1d\n" +
+	"\n" +
+	"total_gpus\x18\x05 \x01(\x05R\ttotalGpus\x12!\n" +
+	"\ftotal_layers\x18\x06 \x01(\x05R\vtotalLayers\x12)\n" +
+	"\x10allocated_layers\x18\a \x01(\x05R\x0fallocatedLayers\x12/\n" +
+	"\x13cluster_utilization\x18\b \x01(\x02R\x12clusterUtilization\"]\n" +
+	"\x0fNodeListRequest\x12!\n" +
+	"\frequester_id\x18\x01 \x01(\tR\vrequesterId\x12'\n" +
+	"\x0finclude_metrics\x18\x02 \x01(\bR\x0eincludeMetrics\"y\n" +
+	"\x10NodeListResponse\x12%\n" +
+	"\x05nodes\x18\x01 \x03(\v2\x0f.proto.NodeInfoR\x05nodes\x12>\n" +
+	"\x0fcluster_metrics\x18\x02 \x01(\v2\x15.proto.ClusterMetricsR\x0eclusterMetrics\"5\n" +
+	"\x10ModelListRequest\x12!\n" +
+	"\frequester_id\x18\x01 \x01(\tR\vrequesterId\"=\n" +
+	"\x11ModelListResponse\x12(\n" +
+	"\x06models\x18\x01 \x03(\v2\x10.proto.ModelInfoR\x06models\"\x86\x01\n" +
+	"\x13UpdateStreamRequest\x12!\n" +
+	"\frequester_id\x18\x01 \x01(\tR\vrequesterId\x12!\n" +
+	"\fupdate_types\x18\x02 \x03(\tR\vupdateTypes\x12)\n" +
+	"\x10interval_seconds\x18\x03 \x01(\x05R\x0fintervalSeconds\"\xd0\x01\n" +
+	"\rClusterUpdate\x12\x1f\n" +
+	"\vupdate_type\x18\x01 \x01(\tR\n" +
+	"updateType\x12%\n" +
+	"\x05nodes\x18\x02 \x03(\v2\x0f.proto.NodeInfoR\x05nodes\x12(\n" +
+	"\x06models\x18\x03 \x03(\v2\x10.proto.ModelInfoR\x06models\x12/\n" +
+	"\ametrics\x18\x04 \x01(\v2\x15.proto.ClusterMetricsR\ametrics\x12\x1c\n" +
+	"\ttimestamp\x18\x05 \x01(\x03R\ttimestamp\"\xdb\x01\n" +
+	"\x0eCommandRequest\x12!\n" +
+	"\frequester_id\x18\x01 \x01(\tR\vrequesterId\x12\x18\n" +
+	"\acommand\x18\x02 \x01(\tR\acommand\x12\x12\n" +
+	"\x04args\x18\x03 \x03(\tR\x04args\x12<\n" +
+	"\aoptions\x18\x04 \x03(\v2\".proto.CommandRequest.OptionsEntryR\aoptions\x1a:\n" +
+	"\fOptionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"v\n" +
+	"\x0fCommandResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x16\n" +
+	"\x06output\x18\x02 \x01(\tR\x06output\x12\x14\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\x12\x1b\n" +
+	"\texit_code\x18\x04 \x01(\x05R\bexitCode2\xf2\x03\n" +
 	"\vNodeService\x12G\n" +
 	"\fRegisterNode\x12\x1a.proto.RegisterNodeRequest\x1a\x1b.proto.RegisterNodeResponse\x12G\n" +
 	"\fGetResources\x12\x1a.proto.GetResourcesRequest\x1a\x1b.proto.GetResourcesResponse\x12E\n" +
 	"\x10ProcessInference\x12\x17.proto.InferenceRequest\x1a\x18.proto.InferenceResponse\x12D\n" +
-	"\vHealthCheck\x12\x19.proto.HealthCheckRequest\x1a\x1a.proto.HealthCheckResponseB\x17Z\x15distributed-llm/protob\x06proto3"
+	"\vHealthCheck\x12\x19.proto.HealthCheckRequest\x1a\x1a.proto.HealthCheckResponse\x12;\n" +
+	"\bGetPeers\x12\x16.proto.GetPeersRequest\x1a\x17.proto.GetPeersResponse\x12A\n" +
+	"\n" +
+	"GetMetrics\x12\x18.proto.GetMetricsRequest\x1a\x19.proto.GetMetricsResponse\x12D\n" +
+	"\rStreamMetrics\x12\x1b.proto.StreamMetricsRequest\x1a\x14.proto.MetricsUpdate0\x012\xb6\x02\n" +
+	"\x10DiscoveryService\x12B\n" +
+	"\rDiscoverNodes\x12\x17.proto.DiscoveryRequest\x1a\x18.proto.DiscoveryResponse\x12L\n" +
+	"\x13RegisterWithCluster\x12\x19.proto.ClusterJoinRequest\x1a\x1a.proto.ClusterJoinResponse\x12G\n" +
+	"\fLeaveCluster\x12\x1a.proto.ClusterLeaveRequest\x1a\x1b.proto.ClusterLeaveResponse\x12G\n" +
+	"\x0eGetClusterInfo\x12\x19.proto.ClusterInfoRequest\x1a\x1a.proto.ClusterInfoResponse2\x95\x02\n" +
+	"\n" +
+	"TUIService\x12>\n" +
+	"\vGetNodeList\x12\x16.proto.NodeListRequest\x1a\x17.proto.NodeListResponse\x12A\n" +
+	"\fGetModelList\x12\x17.proto.ModelListRequest\x1a\x18.proto.ModelListResponse\x12C\n" +
+	"\rStreamUpdates\x12\x1a.proto.UpdateStreamRequest\x1a\x14.proto.ClusterUpdate0\x01\x12?\n" +
+	"\x0eExecuteCommand\x12\x15.proto.CommandRequest\x1a\x16.proto.CommandResponseB\x17Z\x15distributed-llm/protob\x06proto3"
 
 var (
 	file_proto_node_proto_rawDescOnce sync.Once
@@ -692,7 +2867,7 @@ func file_proto_node_proto_rawDescGZIP() []byte {
 	return file_proto_node_proto_rawDescData
 }
 
-var file_proto_node_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_proto_node_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_proto_node_proto_goTypes = []any{
 	(*RegisterNodeRequest)(nil),  // 0: proto.RegisterNodeRequest
 	(*RegisterNodeResponse)(nil), // 1: proto.RegisterNodeResponse
@@ -704,24 +2879,100 @@ var file_proto_node_proto_goTypes = []any{
 	(*InferenceResponse)(nil),    // 7: proto.InferenceResponse
 	(*HealthCheckRequest)(nil),   // 8: proto.HealthCheckRequest
 	(*HealthCheckResponse)(nil),  // 9: proto.HealthCheckResponse
+	(*GetPeersRequest)(nil),      // 10: proto.GetPeersRequest
+	(*GetPeersResponse)(nil),     // 11: proto.GetPeersResponse
+	(*NodeInfo)(nil),             // 12: proto.NodeInfo
+	(*DiscoveryRequest)(nil),     // 13: proto.DiscoveryRequest
+	(*DiscoveryResponse)(nil),    // 14: proto.DiscoveryResponse
+	(*ClusterJoinRequest)(nil),   // 15: proto.ClusterJoinRequest
+	(*ClusterJoinResponse)(nil),  // 16: proto.ClusterJoinResponse
+	(*ClusterLeaveRequest)(nil),  // 17: proto.ClusterLeaveRequest
+	(*ClusterLeaveResponse)(nil), // 18: proto.ClusterLeaveResponse
+	(*ClusterInfoRequest)(nil),   // 19: proto.ClusterInfoRequest
+	(*ClusterInfoResponse)(nil),  // 20: proto.ClusterInfoResponse
+	(*ModelInfo)(nil),            // 21: proto.ModelInfo
+	(*GetMetricsRequest)(nil),    // 22: proto.GetMetricsRequest
+	(*GetMetricsResponse)(nil),   // 23: proto.GetMetricsResponse
+	(*StreamMetricsRequest)(nil), // 24: proto.StreamMetricsRequest
+	(*MetricsUpdate)(nil),        // 25: proto.MetricsUpdate
+	(*NodeMetrics)(nil),          // 26: proto.NodeMetrics
+	(*ResourceMetrics)(nil),      // 27: proto.ResourceMetrics
+	(*GPUMetrics)(nil),           // 28: proto.GPUMetrics
+	(*NetworkMetrics)(nil),       // 29: proto.NetworkMetrics
+	(*InferenceMetrics)(nil),     // 30: proto.InferenceMetrics
+	(*SystemMetrics)(nil),        // 31: proto.SystemMetrics
+	(*ClusterMetrics)(nil),       // 32: proto.ClusterMetrics
+	(*NodeListRequest)(nil),      // 33: proto.NodeListRequest
+	(*NodeListResponse)(nil),     // 34: proto.NodeListResponse
+	(*ModelListRequest)(nil),     // 35: proto.ModelListRequest
+	(*ModelListResponse)(nil),    // 36: proto.ModelListResponse
+	(*UpdateStreamRequest)(nil),  // 37: proto.UpdateStreamRequest
+	(*ClusterUpdate)(nil),        // 38: proto.ClusterUpdate
+	(*CommandRequest)(nil),       // 39: proto.CommandRequest
+	(*CommandResponse)(nil),      // 40: proto.CommandResponse
+	nil,                          // 41: proto.CommandRequest.OptionsEntry
 }
 var file_proto_node_proto_depIdxs = []int32{
-	2, // 0: proto.RegisterNodeRequest.resources:type_name -> proto.ResourceInfo
-	3, // 1: proto.ResourceInfo.gpus:type_name -> proto.GPUInfo
-	2, // 2: proto.GetResourcesResponse.resources:type_name -> proto.ResourceInfo
-	0, // 3: proto.NodeService.RegisterNode:input_type -> proto.RegisterNodeRequest
-	4, // 4: proto.NodeService.GetResources:input_type -> proto.GetResourcesRequest
-	6, // 5: proto.NodeService.ProcessInference:input_type -> proto.InferenceRequest
-	8, // 6: proto.NodeService.HealthCheck:input_type -> proto.HealthCheckRequest
-	1, // 7: proto.NodeService.RegisterNode:output_type -> proto.RegisterNodeResponse
-	5, // 8: proto.NodeService.GetResources:output_type -> proto.GetResourcesResponse
-	7, // 9: proto.NodeService.ProcessInference:output_type -> proto.InferenceResponse
-	9, // 10: proto.NodeService.HealthCheck:output_type -> proto.HealthCheckResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	2,  // 0: proto.RegisterNodeRequest.resources:type_name -> proto.ResourceInfo
+	3,  // 1: proto.ResourceInfo.gpus:type_name -> proto.GPUInfo
+	2,  // 2: proto.GetResourcesResponse.resources:type_name -> proto.ResourceInfo
+	12, // 3: proto.GetPeersResponse.peers:type_name -> proto.NodeInfo
+	2,  // 4: proto.NodeInfo.resources:type_name -> proto.ResourceInfo
+	12, // 5: proto.DiscoveryResponse.discovered_nodes:type_name -> proto.NodeInfo
+	2,  // 6: proto.ClusterJoinRequest.resources:type_name -> proto.ResourceInfo
+	12, // 7: proto.ClusterJoinResponse.existing_nodes:type_name -> proto.NodeInfo
+	12, // 8: proto.ClusterInfoResponse.nodes:type_name -> proto.NodeInfo
+	21, // 9: proto.ClusterInfoResponse.models:type_name -> proto.ModelInfo
+	32, // 10: proto.ClusterInfoResponse.metrics:type_name -> proto.ClusterMetrics
+	26, // 11: proto.GetMetricsResponse.metrics:type_name -> proto.NodeMetrics
+	26, // 12: proto.MetricsUpdate.metrics:type_name -> proto.NodeMetrics
+	27, // 13: proto.NodeMetrics.resource_metrics:type_name -> proto.ResourceMetrics
+	29, // 14: proto.NodeMetrics.network_metrics:type_name -> proto.NetworkMetrics
+	30, // 15: proto.NodeMetrics.inference_metrics:type_name -> proto.InferenceMetrics
+	31, // 16: proto.NodeMetrics.system_metrics:type_name -> proto.SystemMetrics
+	28, // 17: proto.ResourceMetrics.gpu_metrics:type_name -> proto.GPUMetrics
+	12, // 18: proto.NodeListResponse.nodes:type_name -> proto.NodeInfo
+	32, // 19: proto.NodeListResponse.cluster_metrics:type_name -> proto.ClusterMetrics
+	21, // 20: proto.ModelListResponse.models:type_name -> proto.ModelInfo
+	12, // 21: proto.ClusterUpdate.nodes:type_name -> proto.NodeInfo
+	21, // 22: proto.ClusterUpdate.models:type_name -> proto.ModelInfo
+	32, // 23: proto.ClusterUpdate.metrics:type_name -> proto.ClusterMetrics
+	41, // 24: proto.CommandRequest.options:type_name -> proto.CommandRequest.OptionsEntry
+	0,  // 25: proto.NodeService.RegisterNode:input_type -> proto.RegisterNodeRequest
+	4,  // 26: proto.NodeService.GetResources:input_type -> proto.GetResourcesRequest
+	6,  // 27: proto.NodeService.ProcessInference:input_type -> proto.InferenceRequest
+	8,  // 28: proto.NodeService.HealthCheck:input_type -> proto.HealthCheckRequest
+	10, // 29: proto.NodeService.GetPeers:input_type -> proto.GetPeersRequest
+	22, // 30: proto.NodeService.GetMetrics:input_type -> proto.GetMetricsRequest
+	24, // 31: proto.NodeService.StreamMetrics:input_type -> proto.StreamMetricsRequest
+	13, // 32: proto.DiscoveryService.DiscoverNodes:input_type -> proto.DiscoveryRequest
+	15, // 33: proto.DiscoveryService.RegisterWithCluster:input_type -> proto.ClusterJoinRequest
+	17, // 34: proto.DiscoveryService.LeaveCluster:input_type -> proto.ClusterLeaveRequest
+	19, // 35: proto.DiscoveryService.GetClusterInfo:input_type -> proto.ClusterInfoRequest
+	33, // 36: proto.TUIService.GetNodeList:input_type -> proto.NodeListRequest
+	35, // 37: proto.TUIService.GetModelList:input_type -> proto.ModelListRequest
+	37, // 38: proto.TUIService.StreamUpdates:input_type -> proto.UpdateStreamRequest
+	39, // 39: proto.TUIService.ExecuteCommand:input_type -> proto.CommandRequest
+	1,  // 40: proto.NodeService.RegisterNode:output_type -> proto.RegisterNodeResponse
+	5,  // 41: proto.NodeService.GetResources:output_type -> proto.GetResourcesResponse
+	7,  // 42: proto.NodeService.ProcessInference:output_type -> proto.InferenceResponse
+	9,  // 43: proto.NodeService.HealthCheck:output_type -> proto.HealthCheckResponse
+	11, // 44: proto.NodeService.GetPeers:output_type -> proto.GetPeersResponse
+	23, // 45: proto.NodeService.GetMetrics:output_type -> proto.GetMetricsResponse
+	25, // 46: proto.NodeService.StreamMetrics:output_type -> proto.MetricsUpdate
+	14, // 47: proto.DiscoveryService.DiscoverNodes:output_type -> proto.DiscoveryResponse
+	16, // 48: proto.DiscoveryService.RegisterWithCluster:output_type -> proto.ClusterJoinResponse
+	18, // 49: proto.DiscoveryService.LeaveCluster:output_type -> proto.ClusterLeaveResponse
+	20, // 50: proto.DiscoveryService.GetClusterInfo:output_type -> proto.ClusterInfoResponse
+	34, // 51: proto.TUIService.GetNodeList:output_type -> proto.NodeListResponse
+	36, // 52: proto.TUIService.GetModelList:output_type -> proto.ModelListResponse
+	38, // 53: proto.TUIService.StreamUpdates:output_type -> proto.ClusterUpdate
+	40, // 54: proto.TUIService.ExecuteCommand:output_type -> proto.CommandResponse
+	40, // [40:55] is the sub-list for method output_type
+	25, // [25:40] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_proto_node_proto_init() }
@@ -735,9 +2986,9 @@ func file_proto_node_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_node_proto_rawDesc), len(file_proto_node_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   42,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   3,
 		},
 		GoTypes:           file_proto_node_proto_goTypes,
 		DependencyIndexes: file_proto_node_proto_depIdxs,

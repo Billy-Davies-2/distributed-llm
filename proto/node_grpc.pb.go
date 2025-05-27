@@ -23,6 +23,9 @@ const (
 	NodeService_GetResources_FullMethodName     = "/proto.NodeService/GetResources"
 	NodeService_ProcessInference_FullMethodName = "/proto.NodeService/ProcessInference"
 	NodeService_HealthCheck_FullMethodName      = "/proto.NodeService/HealthCheck"
+	NodeService_GetPeers_FullMethodName         = "/proto.NodeService/GetPeers"
+	NodeService_GetMetrics_FullMethodName       = "/proto.NodeService/GetMetrics"
+	NodeService_StreamMetrics_FullMethodName    = "/proto.NodeService/StreamMetrics"
 )
 
 // NodeServiceClient is the client API for NodeService service.
@@ -35,6 +38,9 @@ type NodeServiceClient interface {
 	GetResources(ctx context.Context, in *GetResourcesRequest, opts ...grpc.CallOption) (*GetResourcesResponse, error)
 	ProcessInference(ctx context.Context, in *InferenceRequest, opts ...grpc.CallOption) (*InferenceResponse, error)
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
+	GetPeers(ctx context.Context, in *GetPeersRequest, opts ...grpc.CallOption) (*GetPeersResponse, error)
+	GetMetrics(ctx context.Context, in *GetMetricsRequest, opts ...grpc.CallOption) (*GetMetricsResponse, error)
+	StreamMetrics(ctx context.Context, in *StreamMetricsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[MetricsUpdate], error)
 }
 
 type nodeServiceClient struct {
@@ -85,6 +91,45 @@ func (c *nodeServiceClient) HealthCheck(ctx context.Context, in *HealthCheckRequ
 	return out, nil
 }
 
+func (c *nodeServiceClient) GetPeers(ctx context.Context, in *GetPeersRequest, opts ...grpc.CallOption) (*GetPeersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPeersResponse)
+	err := c.cc.Invoke(ctx, NodeService_GetPeers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) GetMetrics(ctx context.Context, in *GetMetricsRequest, opts ...grpc.CallOption) (*GetMetricsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMetricsResponse)
+	err := c.cc.Invoke(ctx, NodeService_GetMetrics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) StreamMetrics(ctx context.Context, in *StreamMetricsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[MetricsUpdate], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &NodeService_ServiceDesc.Streams[0], NodeService_StreamMetrics_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StreamMetricsRequest, MetricsUpdate]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NodeService_StreamMetricsClient = grpc.ServerStreamingClient[MetricsUpdate]
+
 // NodeServiceServer is the server API for NodeService service.
 // All implementations must embed UnimplementedNodeServiceServer
 // for forward compatibility.
@@ -95,6 +140,9 @@ type NodeServiceServer interface {
 	GetResources(context.Context, *GetResourcesRequest) (*GetResourcesResponse, error)
 	ProcessInference(context.Context, *InferenceRequest) (*InferenceResponse, error)
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
+	GetPeers(context.Context, *GetPeersRequest) (*GetPeersResponse, error)
+	GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error)
+	StreamMetrics(*StreamMetricsRequest, grpc.ServerStreamingServer[MetricsUpdate]) error
 	mustEmbedUnimplementedNodeServiceServer()
 }
 
@@ -116,6 +164,15 @@ func (UnimplementedNodeServiceServer) ProcessInference(context.Context, *Inferen
 }
 func (UnimplementedNodeServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+}
+func (UnimplementedNodeServiceServer) GetPeers(context.Context, *GetPeersRequest) (*GetPeersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPeers not implemented")
+}
+func (UnimplementedNodeServiceServer) GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
+}
+func (UnimplementedNodeServiceServer) StreamMetrics(*StreamMetricsRequest, grpc.ServerStreamingServer[MetricsUpdate]) error {
+	return status.Errorf(codes.Unimplemented, "method StreamMetrics not implemented")
 }
 func (UnimplementedNodeServiceServer) mustEmbedUnimplementedNodeServiceServer() {}
 func (UnimplementedNodeServiceServer) testEmbeddedByValue()                     {}
@@ -210,6 +267,53 @@ func _NodeService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeService_GetPeers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPeersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).GetPeers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_GetPeers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).GetPeers(ctx, req.(*GetPeersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMetricsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).GetMetrics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_GetMetrics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).GetMetrics(ctx, req.(*GetMetricsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_StreamMetrics_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamMetricsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(NodeServiceServer).StreamMetrics(m, &grpc.GenericServerStream[StreamMetricsRequest, MetricsUpdate]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NodeService_StreamMetricsServer = grpc.ServerStreamingServer[MetricsUpdate]
+
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -233,7 +337,465 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "HealthCheck",
 			Handler:    _NodeService_HealthCheck_Handler,
 		},
+		{
+			MethodName: "GetPeers",
+			Handler:    _NodeService_GetPeers_Handler,
+		},
+		{
+			MethodName: "GetMetrics",
+			Handler:    _NodeService_GetMetrics_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamMetrics",
+			Handler:       _NodeService_StreamMetrics_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "proto/node.proto",
+}
+
+const (
+	DiscoveryService_DiscoverNodes_FullMethodName       = "/proto.DiscoveryService/DiscoverNodes"
+	DiscoveryService_RegisterWithCluster_FullMethodName = "/proto.DiscoveryService/RegisterWithCluster"
+	DiscoveryService_LeaveCluster_FullMethodName        = "/proto.DiscoveryService/LeaveCluster"
+	DiscoveryService_GetClusterInfo_FullMethodName      = "/proto.DiscoveryService/GetClusterInfo"
+)
+
+// DiscoveryServiceClient is the client API for DiscoveryService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Discovery service for cluster management
+type DiscoveryServiceClient interface {
+	DiscoverNodes(ctx context.Context, in *DiscoveryRequest, opts ...grpc.CallOption) (*DiscoveryResponse, error)
+	RegisterWithCluster(ctx context.Context, in *ClusterJoinRequest, opts ...grpc.CallOption) (*ClusterJoinResponse, error)
+	LeaveCluster(ctx context.Context, in *ClusterLeaveRequest, opts ...grpc.CallOption) (*ClusterLeaveResponse, error)
+	GetClusterInfo(ctx context.Context, in *ClusterInfoRequest, opts ...grpc.CallOption) (*ClusterInfoResponse, error)
+}
+
+type discoveryServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDiscoveryServiceClient(cc grpc.ClientConnInterface) DiscoveryServiceClient {
+	return &discoveryServiceClient{cc}
+}
+
+func (c *discoveryServiceClient) DiscoverNodes(ctx context.Context, in *DiscoveryRequest, opts ...grpc.CallOption) (*DiscoveryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DiscoveryResponse)
+	err := c.cc.Invoke(ctx, DiscoveryService_DiscoverNodes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *discoveryServiceClient) RegisterWithCluster(ctx context.Context, in *ClusterJoinRequest, opts ...grpc.CallOption) (*ClusterJoinResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClusterJoinResponse)
+	err := c.cc.Invoke(ctx, DiscoveryService_RegisterWithCluster_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *discoveryServiceClient) LeaveCluster(ctx context.Context, in *ClusterLeaveRequest, opts ...grpc.CallOption) (*ClusterLeaveResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClusterLeaveResponse)
+	err := c.cc.Invoke(ctx, DiscoveryService_LeaveCluster_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *discoveryServiceClient) GetClusterInfo(ctx context.Context, in *ClusterInfoRequest, opts ...grpc.CallOption) (*ClusterInfoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClusterInfoResponse)
+	err := c.cc.Invoke(ctx, DiscoveryService_GetClusterInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DiscoveryServiceServer is the server API for DiscoveryService service.
+// All implementations must embed UnimplementedDiscoveryServiceServer
+// for forward compatibility.
+//
+// Discovery service for cluster management
+type DiscoveryServiceServer interface {
+	DiscoverNodes(context.Context, *DiscoveryRequest) (*DiscoveryResponse, error)
+	RegisterWithCluster(context.Context, *ClusterJoinRequest) (*ClusterJoinResponse, error)
+	LeaveCluster(context.Context, *ClusterLeaveRequest) (*ClusterLeaveResponse, error)
+	GetClusterInfo(context.Context, *ClusterInfoRequest) (*ClusterInfoResponse, error)
+	mustEmbedUnimplementedDiscoveryServiceServer()
+}
+
+// UnimplementedDiscoveryServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedDiscoveryServiceServer struct{}
+
+func (UnimplementedDiscoveryServiceServer) DiscoverNodes(context.Context, *DiscoveryRequest) (*DiscoveryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DiscoverNodes not implemented")
+}
+func (UnimplementedDiscoveryServiceServer) RegisterWithCluster(context.Context, *ClusterJoinRequest) (*ClusterJoinResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterWithCluster not implemented")
+}
+func (UnimplementedDiscoveryServiceServer) LeaveCluster(context.Context, *ClusterLeaveRequest) (*ClusterLeaveResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaveCluster not implemented")
+}
+func (UnimplementedDiscoveryServiceServer) GetClusterInfo(context.Context, *ClusterInfoRequest) (*ClusterInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClusterInfo not implemented")
+}
+func (UnimplementedDiscoveryServiceServer) mustEmbedUnimplementedDiscoveryServiceServer() {}
+func (UnimplementedDiscoveryServiceServer) testEmbeddedByValue()                          {}
+
+// UnsafeDiscoveryServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DiscoveryServiceServer will
+// result in compilation errors.
+type UnsafeDiscoveryServiceServer interface {
+	mustEmbedUnimplementedDiscoveryServiceServer()
+}
+
+func RegisterDiscoveryServiceServer(s grpc.ServiceRegistrar, srv DiscoveryServiceServer) {
+	// If the following call pancis, it indicates UnimplementedDiscoveryServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&DiscoveryService_ServiceDesc, srv)
+}
+
+func _DiscoveryService_DiscoverNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DiscoveryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DiscoveryServiceServer).DiscoverNodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DiscoveryService_DiscoverNodes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DiscoveryServiceServer).DiscoverNodes(ctx, req.(*DiscoveryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DiscoveryService_RegisterWithCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClusterJoinRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DiscoveryServiceServer).RegisterWithCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DiscoveryService_RegisterWithCluster_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DiscoveryServiceServer).RegisterWithCluster(ctx, req.(*ClusterJoinRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DiscoveryService_LeaveCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClusterLeaveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DiscoveryServiceServer).LeaveCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DiscoveryService_LeaveCluster_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DiscoveryServiceServer).LeaveCluster(ctx, req.(*ClusterLeaveRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DiscoveryService_GetClusterInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClusterInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DiscoveryServiceServer).GetClusterInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DiscoveryService_GetClusterInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DiscoveryServiceServer).GetClusterInfo(ctx, req.(*ClusterInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// DiscoveryService_ServiceDesc is the grpc.ServiceDesc for DiscoveryService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var DiscoveryService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.DiscoveryService",
+	HandlerType: (*DiscoveryServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "DiscoverNodes",
+			Handler:    _DiscoveryService_DiscoverNodes_Handler,
+		},
+		{
+			MethodName: "RegisterWithCluster",
+			Handler:    _DiscoveryService_RegisterWithCluster_Handler,
+		},
+		{
+			MethodName: "LeaveCluster",
+			Handler:    _DiscoveryService_LeaveCluster_Handler,
+		},
+		{
+			MethodName: "GetClusterInfo",
+			Handler:    _DiscoveryService_GetClusterInfo_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
+	Metadata: "proto/node.proto",
+}
+
+const (
+	TUIService_GetNodeList_FullMethodName    = "/proto.TUIService/GetNodeList"
+	TUIService_GetModelList_FullMethodName   = "/proto.TUIService/GetModelList"
+	TUIService_StreamUpdates_FullMethodName  = "/proto.TUIService/StreamUpdates"
+	TUIService_ExecuteCommand_FullMethodName = "/proto.TUIService/ExecuteCommand"
+)
+
+// TUIServiceClient is the client API for TUIService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// TUI service for management interface
+type TUIServiceClient interface {
+	GetNodeList(ctx context.Context, in *NodeListRequest, opts ...grpc.CallOption) (*NodeListResponse, error)
+	GetModelList(ctx context.Context, in *ModelListRequest, opts ...grpc.CallOption) (*ModelListResponse, error)
+	StreamUpdates(ctx context.Context, in *UpdateStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ClusterUpdate], error)
+	ExecuteCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error)
+}
+
+type tUIServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewTUIServiceClient(cc grpc.ClientConnInterface) TUIServiceClient {
+	return &tUIServiceClient{cc}
+}
+
+func (c *tUIServiceClient) GetNodeList(ctx context.Context, in *NodeListRequest, opts ...grpc.CallOption) (*NodeListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(NodeListResponse)
+	err := c.cc.Invoke(ctx, TUIService_GetNodeList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tUIServiceClient) GetModelList(ctx context.Context, in *ModelListRequest, opts ...grpc.CallOption) (*ModelListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModelListResponse)
+	err := c.cc.Invoke(ctx, TUIService_GetModelList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tUIServiceClient) StreamUpdates(ctx context.Context, in *UpdateStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ClusterUpdate], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &TUIService_ServiceDesc.Streams[0], TUIService_StreamUpdates_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[UpdateStreamRequest, ClusterUpdate]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type TUIService_StreamUpdatesClient = grpc.ServerStreamingClient[ClusterUpdate]
+
+func (c *tUIServiceClient) ExecuteCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CommandResponse)
+	err := c.cc.Invoke(ctx, TUIService_ExecuteCommand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TUIServiceServer is the server API for TUIService service.
+// All implementations must embed UnimplementedTUIServiceServer
+// for forward compatibility.
+//
+// TUI service for management interface
+type TUIServiceServer interface {
+	GetNodeList(context.Context, *NodeListRequest) (*NodeListResponse, error)
+	GetModelList(context.Context, *ModelListRequest) (*ModelListResponse, error)
+	StreamUpdates(*UpdateStreamRequest, grpc.ServerStreamingServer[ClusterUpdate]) error
+	ExecuteCommand(context.Context, *CommandRequest) (*CommandResponse, error)
+	mustEmbedUnimplementedTUIServiceServer()
+}
+
+// UnimplementedTUIServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedTUIServiceServer struct{}
+
+func (UnimplementedTUIServiceServer) GetNodeList(context.Context, *NodeListRequest) (*NodeListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNodeList not implemented")
+}
+func (UnimplementedTUIServiceServer) GetModelList(context.Context, *ModelListRequest) (*ModelListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModelList not implemented")
+}
+func (UnimplementedTUIServiceServer) StreamUpdates(*UpdateStreamRequest, grpc.ServerStreamingServer[ClusterUpdate]) error {
+	return status.Errorf(codes.Unimplemented, "method StreamUpdates not implemented")
+}
+func (UnimplementedTUIServiceServer) ExecuteCommand(context.Context, *CommandRequest) (*CommandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExecuteCommand not implemented")
+}
+func (UnimplementedTUIServiceServer) mustEmbedUnimplementedTUIServiceServer() {}
+func (UnimplementedTUIServiceServer) testEmbeddedByValue()                    {}
+
+// UnsafeTUIServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TUIServiceServer will
+// result in compilation errors.
+type UnsafeTUIServiceServer interface {
+	mustEmbedUnimplementedTUIServiceServer()
+}
+
+func RegisterTUIServiceServer(s grpc.ServiceRegistrar, srv TUIServiceServer) {
+	// If the following call pancis, it indicates UnimplementedTUIServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&TUIService_ServiceDesc, srv)
+}
+
+func _TUIService_GetNodeList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NodeListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TUIServiceServer).GetNodeList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TUIService_GetNodeList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TUIServiceServer).GetNodeList(ctx, req.(*NodeListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TUIService_GetModelList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModelListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TUIServiceServer).GetModelList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TUIService_GetModelList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TUIServiceServer).GetModelList(ctx, req.(*ModelListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TUIService_StreamUpdates_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(UpdateStreamRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(TUIServiceServer).StreamUpdates(m, &grpc.GenericServerStream[UpdateStreamRequest, ClusterUpdate]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type TUIService_StreamUpdatesServer = grpc.ServerStreamingServer[ClusterUpdate]
+
+func _TUIService_ExecuteCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TUIServiceServer).ExecuteCommand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TUIService_ExecuteCommand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TUIServiceServer).ExecuteCommand(ctx, req.(*CommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// TUIService_ServiceDesc is the grpc.ServiceDesc for TUIService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var TUIService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.TUIService",
+	HandlerType: (*TUIServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetNodeList",
+			Handler:    _TUIService_GetNodeList_Handler,
+		},
+		{
+			MethodName: "GetModelList",
+			Handler:    _TUIService_GetModelList_Handler,
+		},
+		{
+			MethodName: "ExecuteCommand",
+			Handler:    _TUIService_ExecuteCommand_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamUpdates",
+			Handler:       _TUIService_StreamUpdates_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "proto/node.proto",
 }

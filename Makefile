@@ -135,6 +135,50 @@ run-agent:
 run-tui:
 	$(GOCMD) run ./cmd/tui
 
+## run-tui-docker: Run TUI locally connecting to Docker agents
+run-tui-docker: 
+	$(GOCMD) run ./cmd/tui --docker --log-level=debug
+
+## run-tui-k8s: Run TUI locally connecting to Kubernetes agents
+run-tui-k8s:
+	$(GOCMD) run ./cmd/tui --k8s-namespace=default --log-level=debug
+
+## run-tui-k3d: Run TUI locally connecting to k3d cluster
+run-tui-k3d:
+	$(GOCMD) run ./cmd/tui --seed-nodes=localhost:8080 --docker --log-level=debug
+
+## run-tui-local: Run TUI locally connecting to local agents
+run-tui-local:
+	$(GOCMD) run ./cmd/tui --seed-nodes=localhost:8080,localhost:8081,localhost:8082 --log-level=debug
+
+## setup-k3d: Setup local k3d cluster for development
+setup-k3d:
+	@echo "Setting up k3d development cluster..."
+	./hack/setup-local-k3d.sh
+
+## setup-kind: Setup local kind cluster for development
+setup-kind:
+	@echo "Setting up kind development cluster..."
+	./hack/setup-local-k8s.sh
+
+## k3d-logs: View agent logs in k3d cluster
+k3d-logs:
+	kubectl logs -l app=distributed-llm-agent -f
+
+## k3d-status: Check status of k3d cluster
+k3d-status:
+	@echo "Cluster status:"
+	@k3d cluster list
+	@echo "\nPods:"
+	@kubectl get pods -o wide
+	@echo "\nServices:"
+	@kubectl get svc
+
+## k3d-cleanup: Clean up k3d cluster
+k3d-cleanup:
+	k3d cluster delete distributed-llm || true
+	k3d registry delete k3d-registry.localhost || true
+
 ## docker-build: Build Docker image
 docker-build:
 	@echo "Building Docker image..."
@@ -274,3 +318,89 @@ monitoring-stop: metrics-stop grafana-stop
 metrics-check:
 	@echo "Checking metrics endpoint..."
 	@curl -s http://localhost:9090/metrics | head -20 || echo "Metrics endpoint not available"
+
+## dev-start: Start local development environment with Docker Compose
+dev-start:
+	@echo "Starting local development environment..."
+	docker-compose up -d --build
+	@echo "Waiting for agents to be ready..."
+	@sleep 10
+	@echo "Development environment ready! Use 'make run-tui-docker' to start TUI"
+	@echo "Prometheus: http://localhost:9093"
+	@echo "Grafana: http://localhost:3000 (admin/admin)"
+
+## dev-stop: Stop local development environment
+dev-stop:
+	@echo "Stopping local development environment..."
+	docker-compose down
+
+## dev-restart: Restart local development environment
+dev-restart: dev-stop dev-start
+
+## dev-logs: Show logs from all development services
+dev-logs:
+	docker-compose logs -f
+
+## dev-status: Show status of development services
+dev-status:
+	docker-compose ps
+
+## dev-clean: Clean up development environment
+dev-clean:
+	@echo "Cleaning up development environment..."
+	docker-compose down -v --remove-orphans
+	docker system prune -f
+
+## dev-gpu: Start development environment with GPU support
+dev-gpu:
+	@echo "Starting GPU-enabled development environment..."
+	docker-compose --profile gpu up -d --build
+	@echo "GPU development environment ready!"
+
+## docs: Generate Hugo documentation site
+docs:
+	@echo "Generating Hugo documentation..."
+	@if ! command -v hugo >/dev/null 2>&1; then \
+		echo "Installing Hugo..."; \
+		if command -v snap >/dev/null 2>&1; then \
+			sudo snap install hugo; \
+		else \
+			echo "Please install Hugo: https://gohugo.io/installation/"; \
+			exit 1; \
+		fi; \
+	fi
+	@cd docs-site && hugo --minify --destination ../docs-output
+	@echo "Documentation generated in docs-output/"
+	@echo "To serve locally: make docs-serve"
+
+## docs-serve: Serve documentation locally
+docs-serve:
+	@echo "Starting Hugo development server..."
+	@if ! command -v hugo >/dev/null 2>&1; then \
+		echo "Hugo not found. Run 'make docs' first."; \
+		exit 1; \
+	fi
+	@cd docs-site && hugo server --bind 0.0.0.0 --port 1313 --disableFastRender
+	@echo "Documentation server started at http://localhost:1313"
+
+## docs-build: Build documentation for GitHub Pages
+docs-build:
+	@echo "Building documentation for GitHub Pages..."
+	@cd docs-site && hugo --minify --baseURL "https://billy-davies-2.github.io/distributed-llm/" --destination ../docs
+	@echo "Documentation built for GitHub Pages in docs/"
+
+## docs-clean: Clean documentation build artifacts
+docs-clean:
+	@echo "Cleaning documentation artifacts..."
+	@rm -rf docs-output/ docs-site/public/ docs/
+
+## docs-dev: Start documentation development environment
+docs-dev: docs-clean
+	@echo "Setting up documentation development environment..."
+	@cd docs-site && \
+		if [ ! -d "themes/docsy" ]; then \
+			echo "Installing Docsy theme..."; \
+			git submodule add https://github.com/google/docsy.git themes/docsy || true; \
+			git submodule update --init --recursive; \
+		fi
+	@make docs-serve
