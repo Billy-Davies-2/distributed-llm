@@ -1,0 +1,140 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+!bin/.gitkeep
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+coverage.out
+coverage.html
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Kubernetes
+*.kubeconfig
+kubeconfig*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Downloaded tools and dependencies
+get-docker.sh
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Generated protobuf files (uncomment if you want to ignore generated proto files)
+# pkg/proto/
+# *.pb.go
+
+# Integration test binaries
+integration.test
+*.test.bin
+
+# Minikube/K8s local development
+.minikube/
+.kube/
+
+# Local development scripts (if they contain sensitive data)
+local-*.sh
+
+# Backup files
+*.bak
+*.backup
+
+# Profiling data
+*.prof
+*.cpu
+*.mem
+
+# Fuzz testing artifacts
+testdata/fuzz/
+
+# Certificate files
+*.pem
+*.key
+*.crt
+*.csr
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache directories
+.cache/
+cache/
+
+# Node modules (if any JS tooling is used)
+node_modules/
+
+# Python (if any Python tooling is used)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Terraform (if used for infrastructure)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Helm charts (if used)
+charts/*.tgz
+
+# Local configuration overrides
+config.local.yaml
+config.local.yml
+*-local.yaml
+*-local.yml
