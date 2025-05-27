@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: distributed-llm-agent
+  labels:
+    app: distributed-llm
+    component: agent
+spec:
+  selector:
+    matchLabels:
+      app: distributed-llm-agent
+  template:
+    metadata:
+      labels:
+        app: distributed-llm-agent
+        component: agent
+    spec:
+      serviceAccountName: distributed-llm-agent
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: agent
+        image: distributed-llm:latest
+        imagePullPolicy: Never  # Use local image built in minikube's Docker daemon
+        command:
+        - /bin/agent
+        args:
+        - --node-id=$(NODE_NAME)
+        - --bind-port=8080
+        - --gossip-port=7946
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        ports:
+        - containerPort: 8080
+          name: grpc
+          protocol: TCP
+        - containerPort: 7946
+          name: gossip
+          protocol: TCP
+        - containerPort: 7946
+          name: gossip-udp
+          protocol: UDP
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+        volumeMounts:
+        - name: shared-models
+          mountPath: /models
+        - name: host-sys
+          mountPath: /host/sys
+          readOnly: true
+        - name: host-proc
+          mountPath: /host/proc
+          readOnly: true
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "pgrep -f /bin/agent"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "pgrep -f /bin/agent"
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          privileged: true
+          runAsUser: 0
+      volumes:
+      - name: shared-models
+        persistentVolumeClaim:
+          claimName: distributed-llm-models
+      - name: host-sys
+        hostPath:
+          path: /sys
+      - name: host-proc
+        hostPath:
+          path: /proc
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
+      - operator: Exists
+        effect: NoExecute
+      - key: "node-role.kubernetes.io/master"
+        effect: NoSchedule
+      nodeSelector:
+        kubernetes.io/os: linux
